@@ -39,7 +39,7 @@ export default function Hero() {
               <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary to-accent/50 blur-lg opacity-50"></div>
               <div className="relative aspect-square w-64 md:w-80 bg-muted rounded-full overflow-hidden border-4 border-background">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop"
+                  src="/lovable-uploads/9f3affde-eade-442b-b40d-f96efe92f2c0.png"
                   alt="Rushikesh Jadhav"
                   className="w-full h-full object-cover"
                 />
