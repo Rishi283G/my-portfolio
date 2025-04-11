@@ -17,32 +17,32 @@ export default function Projects() {
       description: "My personal portfolio website showcasing my projects and skills.",
       image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=870",
       tags: ["React", "TypeScript", "Tailwind CSS"],
-      github: "#",
-      demo: "#",
+      github: "https://github.com/Rishi283G/my-resume",
+      demo: "https://my-resume-puce-five.vercel.app/",
     },
     {
-      title: "E-commerce Dashboard",
+      title: "intro-website",
       description: "A dashboard for e-commerce stores to manage products and orders.",
       image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=870",
       tags: ["HTML", "CSS", "JavaScript"],
-      github: "#",
-      demo: "#",
+      github: "https://github.com/Rishi283G/Intro-Website/tree/main/1ST-WEBSITE",
+      demo: "https://intro-website-omega.vercel.app/",
     },
     {
-      title: "Weather App",
+      title: "Rock Paper Scissors-Game",
       description: "A weather app that shows current weather and forecasts.",
       image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=870",
-      tags: ["HTML", "CSS", "JavaScript", "API"],
-      github: "#",
-      demo: "#",
+      tags: ["HTML", "CSS", "JavaScript"],
+      github: "https://github.com/Rishi283G/Rock-paper-scissors-Game",
+      demo: "https://rock-paper-scissors-game-chi-ten.vercel.app/",
     },
     {
-      title: "Task Manager",
+      title: "To-Do-List-App",
       description: "A task manager app to keep track of daily tasks and todos.",
       image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=870",
       tags: ["React", "Local Storage", "CSS"],
-      github: "#",
-      demo: "#",
+      github: "https://github.com/Rishi283G/toDoApp",
+      demo: "https://to-do-app-ten-ashen.vercel.app/",
     },
   ];
 
@@ -104,7 +104,7 @@ export default function Projects() {
 
         <div className="mt-12 text-center">
           <a 
-            href="https://github.com/" 
+            href="https://github.com/Rishi283G" 
             target="_blank" 
             rel="noopener noreferrer"
           >

@@ -1,4 +1,3 @@
-
 import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -9,15 +8,15 @@ export default function Hero() {
         <div className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="order-2 lg:order-1 animate-fade-in">
             <h1 className="font-poppins text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Hi, I'm{" "}
-              <span className="gradient-text">Rushikesh Jadhav</span>
+              Hi, I'm <span className="gradient-text">Rushikesh Jadhav</span>
             </h1>
             <p className="mt-4 text-xl md:text-2xl font-poppins font-semibold">
-              I chose skills over a degree.
+              I build with passion, not permission.
             </p>
             <p className="mt-4 text-lg text-muted-foreground max-w-lg">
-              A self-taught aspiring software engineer from Radi, India. 
-              Currently building with React, JavaScript, and a whole lot of determination.
+              A self-taught aspiring software engineer from Radi, India.
+              Currently building with React, JavaScript, and a whole lot of
+              determination.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <a href="#projects">
@@ -26,7 +25,7 @@ export default function Hero() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </a>
-              <a href="#" download>
+              <a href="https://my-resume-puce-five.vercel.app/" download>
                 <Button variant="outline" className="gap-2">
                   Download Resume
                   <Download className="h-4 w-4" />

@@ -23,7 +23,7 @@ export default function Footer() {
                 jadhavrushikesh283@gmail.com
               </a>
               <a
-                href="https://github.com/"
+                href="https://github.com/Rishi283G"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
