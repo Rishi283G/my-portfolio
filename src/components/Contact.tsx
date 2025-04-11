@@ -21,6 +21,8 @@ export default function Contact() {
     message: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -28,12 +30,31 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, this would send the form data to a server
-    console.log("Form submitted:", formData);
-    toast.success("Message sent successfully! I'll get back to you soon.");
-    setFormData({ name: "", email: "", message: "" });
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch("https://formspree.io/f/mzzeyqqd", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      if (response.ok) {
+        toast.success("Message sent successfully! I'll get back to you soon.");
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        toast.error("Failed to send message. Please try again later.");
+      }
+    } catch (error) {
+      console.error("Error sending form:", error);
+      toast.error("Something went wrong. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -108,7 +129,12 @@ export default function Contact() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form 
+                onSubmit={handleSubmit} 
+                action="https://formspree.io/f/mzzeyqqd"
+                method="POST"
+                className="space-y-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
                   <Input
@@ -144,9 +170,13 @@ export default function Contact() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full gap-2">
+                <Button 
+                  type="submit" 
+                  className="w-full gap-2"
+                  disabled={isSubmitting}
+                >
                   <Send className="h-4 w-4" />
-                  Send Message
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </CardContent>
