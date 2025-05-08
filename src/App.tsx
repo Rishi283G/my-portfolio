@@ -6,17 +6,23 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
+// Initialize the React Query client
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      {/* Global toast notifications */}
       <Toaster />
       <Sonner />
+
+      {/* Client-side routing */}
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* You can add custom routes here like */}
+          {/* <Route path="/projects" element={<ProjectsPage />} /> */}
+          {/* Make sure to keep this wildcard route at the bottom */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -25,3 +31,9 @@ const App = () => (
 );
 
 export default App;
+
+
+
+
+
+
