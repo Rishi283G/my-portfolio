@@ -48,7 +48,8 @@ const Testimonials = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <svg 
         key={i} 
-        className={`w-5 h-5 ${i < rating ? 'text-yellow-400' : 'text-gray-400'}`}
+        className={`w-5 h-5 ${i < rating ? 'text-yellow-400' : 'text-gray-400 dark:text-gray-600'}`}
+
         fill="currentColor" 
         viewBox="0 0 20 20"
       >
@@ -58,17 +59,20 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="testimonials" className="py-16 bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <section id="testimonials" className="py-16 bg-gray-100 dark:bg-gradient-to-b dark:from-gray-900 dark:to-gray-800 dark:text-white text-gray-900 transition-colors duration-500">
+
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-2">Client Testimonials</h2>
           <div className="w-24 h-1 bg-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-300">What our clients are saying about our services</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300 transition-colors duration-500"></p>
+
         </div>
 
         <div className="relative">
           {/* Main testimonial card */}
-          <div className="bg-gray-800 rounded-xl p-8 md:p-10 shadow-2xl border border-gray-700 transform transition-all duration-500">
+       <div className="bg-white dark:bg-gray-800 rounded-xl p-8 md:p-10 shadow-2xl border border-gray-200 dark:border-gray-700 transition-colors duration-500">
+
             <div className="flex justify-center mb-6 space-x-1">
               {renderStars(testimonials[currentIndex].rating)}
             </div>
