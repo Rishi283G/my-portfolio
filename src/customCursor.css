@@ -1,0 +1,154 @@
+.cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    transition: 
+      transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      border-color 0.3s ease,
+      opacity 0.3s ease,
+      box-shadow 0.3s ease;
+    z-index: 9999;
+    /* Hide cursor initially */
+    opacity: 0;
+    /* Center the cursor */
+    transform: translate(-50%, -50%);
+    /* Add bluish-purple glow */
+    box-shadow: 0 0 15px 3px rgba(125, 80, 230, 0.7);
+    will-change: transform, width, height, border-color;
+  }
+  
+  /* Show cursor when initialized */
+  .cursor.active {
+    opacity: 1;
+  }
+  
+  .cursor.cursor-hover {
+    width: 40px;
+    height: 40px;
+    border-color: #a88bff;
+    /* Add scale effect */
+    transform: translate(-50%, -50%) scale(1.2);
+    border-width: 3px;
+    /* Intensify glow on hover */
+    box-shadow: 0 0 20px 5px rgba(125, 80, 230, 0.8), 0 0 30px 10px rgba(90, 60, 220, 0.4);
+  }
+  
+  /* Add inner dot */
+  .cursor::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s, background 0.3s;
+  }
+  
+  .cursor.cursor-hover::after {
+    transform: translate(-50%, -50%) scale(1.5);
+    background: #a88bff;
+  }
+  
+  /* Hide default cursor more aggressively */
+  html, body, a, button, [role="button"], .interactive {
+    cursor: none !important;
+  }
+  
+  /* Trailing effect */
+  .cursor-trail {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: rgba(185, 160, 255, 0.6);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s ease, left 0.15s ease-out, top 0.15s ease-out;
+    mix-blend-mode: screen;
+    filter: blur(2px);
+    box-shadow: 0 0 8px 2px rgba(125, 80, 230, 0.5);
+    will-change: transform, left, top, opacity;
+  }
+  
+  /* Contextual cursor states */
+  .cursor-text {
+    width: 3px !important;
+    height: 22px !important;
+    border-radius: 1px !important;
+    border-width: 0 !important;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 8px 1px rgba(125, 80, 230, 0.7);
+    animation: cursor-blink 1s infinite;
+  }
+  
+  /* Text cursor doesn't need the dot */
+  .cursor-text::after {
+    display: none;
+  }
+  
+  /* Click animation */
+  .cursor-clicking {
+    transform: translate(-50%, -50%) scale(0.8) !important;
+    opacity: 0.8;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  
+  /* Click ripple effect */
+  .cursor-click-ripple {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid rgba(125, 80, 230, 0);
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    z-index: 9997;
+    opacity: 0;
+    transition: none;
+  }
+  
+  .cursor-click-ripple.active {
+    animation: click-ripple 0.7s ease-out;
+  }
+  
+  /* Blink animation for text cursor */
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* Click ripple animation */
+  @keyframes click-ripple {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 1;
+      border-color: rgba(125, 80, 230, 0.8);
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(4);
+      opacity: 0;
+      border-color: rgba(125, 80, 230, 0);
+    }
+  }
+  
+  /* Media query for touch devices */
+  @media (pointer: coarse) {
+    .cursor, .cursor-trail, .cursor-click-ripple {
+      display: none;
+    }
+    
+    html, body, a, button, [role="button"], .interactive {
+      cursor: auto !important;
+    }
+  }

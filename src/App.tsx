@@ -5,35 +5,31 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import CustomCursor from "./components/customCursor"; // Fixed component name casing
 
-// Initialize the React Query client
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      {/* Global toast notifications */}
-      <Toaster />
-      <Sonner />
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <BrowserRouter>
+          {/* Custom cursor should be inside providers but outside Router to stay persistent */}
+          <CustomCursor />
+          
+          {/* Global toast notifications */}
+          <Toaster />
+          <Sonner />
 
-      {/* Client-side routing */}
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* You can add custom routes here like */}
-          {/* <Route path="/projects" element={<ProjectsPage />} /> */}
-          {/* Make sure to keep this wildcard route at the bottom */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+          <Routes>
+            <Route path="/" element={<Index />} />
+            {/* Add other routes here */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
-
-
-
-
-
-
