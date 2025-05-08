@@ -13,7 +13,7 @@ const Testimonials: React.FC = () => {
 
         <div className="bg-gray-800 p-6 rounded-lg">
           <p className="text-white">"Working with Rishi on a recent project was smooth and insightful. He has clean code practices and a great attitude."</p>
-          <p className="text-gray-400 mt-4 text-right">- Vishal Patil</p>
+          <p className="text-gray-400 mt-4 text-right">- Vishal Dhavse</p>
         </div>
 
         <div className="bg-gray-800 p-6 rounded-lg">
