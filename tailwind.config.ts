@@ -64,6 +64,13 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
+			extend: {
+				colors: {
+				  primary: '#6366f1', // Indigo-500
+				  accent: '#ec4899',  // Pink-500
+				},
+			  },
+			  
 			fontFamily: {
 				poppins: ['Poppins', 'sans-serif'],
 				inter: ['Inter', 'sans-serif'],

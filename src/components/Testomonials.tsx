@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AnimationWrapper, StaggerContainer } from "./anime";
 
 const Testimonials = () => {
   // Sample testimonial data - you can replace with your actual data
@@ -63,34 +64,37 @@ const Testimonials = () => {
 
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
+          <AnimationWrapper direction='up'>
           <h2 className="text-4xl font-bold mb-2">Client Testimonials</h2>
+          </AnimationWrapper>
           <div className="w-24 h-1 bg-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-300 transition-colors duration-500"></p>
 
         </div>
-
+        <AnimationWrapper direction='up'>
         <div className="relative">
           {/* Main testimonial card */}
+          <AnimationWrapper direction='up'>
        <div className="bg-white dark:bg-gray-800 rounded-xl p-8 md:p-10 shadow-2xl border border-gray-200 dark:border-gray-700 transition-colors duration-500">
-
+       <AnimationWrapper direction='up'>
             <div className="flex justify-center mb-6 space-x-1">
               {renderStars(testimonials[currentIndex].rating)}
             </div>
-            
+            </AnimationWrapper>
             <div className="relative">
               <svg className="text-blue-500 w-12 h-12 opacity-20 absolute -top-6 -left-2" fill="currentColor" viewBox="0 0 32 32">
                 <path d="M10 8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V10c0-1.1-.9-2-2-2h-6zm16-8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V2c0-1.1-.9-2-2-2h-6z" />
               </svg>
-              
+              <AnimationWrapper direction='up'>
               <p className="text-lg md:text-xl italic leading-relaxed">
                 {testimonials[currentIndex].text}
               </p>
-              
+              </AnimationWrapper>
               <svg className="text-blue-500 w-12 h-12 opacity-20 absolute -bottom-6 -right-2" fill="currentColor" viewBox="0 0 32 32">
                 <path d="M22 24c2.2 0 4-1.8 4-4V10c0-2.2-1.8-4-4-4H12c-2.2 0-4 1.8-4 4v6.4c0 1.1.9 1.6 2 1.6h2c1.1 0 2 .5 2 1.6V22c0 1.1.9 2 2 2h6zM6 32c2.2 0 4-1.8 4-4V18c0-2.2-1.8-4-4-4H-4c-2.2 0-4 1.8-4 4v6.4c0 1.1.9 1.6 2 1.6h2c1.1 0 2 .5 2 1.6V30c0 1.1.9 2 2 2h6z" />
               </svg>
             </div>
-            
+            <AnimationWrapper direction='up'>
             <div className="mt-8 flex flex-col items-center">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-2xl font-bold">
                 {testimonials[currentIndex].author.charAt(0)}
@@ -100,8 +104,9 @@ const Testimonials = () => {
                 <p className="text-blue-400 text-sm">{testimonials[currentIndex].source}</p>
               </div>
             </div>
+            </AnimationWrapper>
           </div>
-
+          </AnimationWrapper>
           {/* Navigation dots */}
           <div className="flex justify-center mt-8 space-x-3">
             {testimonials.map((_, index) => (
@@ -117,6 +122,7 @@ const Testimonials = () => {
           </div>
 
           {/* Navigation arrows */}
+
           <div className="hidden md:block">
             <button 
               onClick={() => setCurrentIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1)}
@@ -136,11 +142,16 @@ const Testimonials = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
             </button>
+      
           </div>
+       
         </div>
+        </AnimationWrapper>
       </div>
-    </section>
+      
+    </section>   
+
   );
-};
+};    
 
 export default Testimonials;

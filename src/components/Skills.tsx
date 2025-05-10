@@ -1,4 +1,3 @@
-
 import {
   Code2,
   FileCode2,
@@ -15,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AnimationWrapper, StaggerContainer } from "./anime";
 
 export default function Skills() {
   const skillCategories = [
@@ -53,44 +53,53 @@ export default function Skills() {
   return (
     <section id="skills" className="py-20">
       <div className="container">
-        <div className="text-center mb-16">
-          <h2 className="font-poppins text-3xl md:text-4xl font-bold">
-            My <span className="gradient-text">Skills</span>
-          </h2>
-          <div className="mt-4 mx-auto max-w-xl">
-            <p className="text-muted-foreground">
-              Technologies and tools I've learned and currently using to build digital experiences.
-            </p>
+        <AnimationWrapper direction="up">
+          <div className="text-center mb-16">
+            <h2 className="font-poppins text-3xl md:text-4xl font-bold">
+              My <span className="gradient-text">Skills</span>
+            </h2>
+            <div className="mt-4 mx-auto max-w-xl">
+              <p className="text-muted-foreground">
+                Technologies and tools I've learned and currently using to build digital experiences.
+              </p>
+            </div>
           </div>
-        </div>
+        </AnimationWrapper>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StaggerContainer
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          delayChildren={0.3}
+        >
           {skillCategories.map((category, index) => (
-            <Card key={index} className="group hover:shadow-md transition-all duration-300 border-border/50 overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  {category.icon}
-                  <CardTitle className="text-lg">{category.title}</CardTitle>
-                </div>
-                <CardDescription>
-                  {category.title === "Learning Next" 
-                    ? "Technologies on my learning roadmap"
-                    : `My ${category.title.toLowerCase()} skills and tools`}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill, skillIndex) => (
-                    <span key={skillIndex} className="badge bg-secondary/50">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </CardContent>
-              <div className="h-1 w-full bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-            </Card>
+            <AnimationWrapper key={index} direction="left">
+              <div className="flex flex-col h-full">
+                <Card className="group h-full min-h-[220px] flex flex-col justify-between border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      {category.icon}
+                      <CardTitle className="text-lg">{category.title}</CardTitle>
+                    </div>
+                    <CardDescription>
+                      {category.title === "Learning Next"
+                        ? "Technologies on my learning roadmap"
+                        : `My ${category.title.toLowerCase()} skills and tools`}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <div className="flex flex-wrap gap-2">
+                      {category.skills.map((skill, skillIndex) => (
+                        <span key={skillIndex} className="badge bg-secondary/50">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <div className="h-1 w-full bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                </Card>
+              </div>
+            </AnimationWrapper>
           ))}
-        </div>
+        </StaggerContainer>
 
         <div className="mt-16 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">

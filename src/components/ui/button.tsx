@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-
+import { motion, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
@@ -37,15 +37,40 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  animation?: {
+    hover?: Record<string, unknown>
+    tap?: Record<string, unknown>
+    transition?: Record<string, unknown>
+  }
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+  ({ className, variant, size, asChild = false, animation, ...props }, ref) => {
+    const Comp = asChild ? motion(Slot) : motion.button
+    const shouldReduceMotion = useReducedMotion()
+
+    // Default animations
+    const defaultAnimations = {
+      hover: { scale: 1.05, boxShadow: "0 4px 14px rgba(0,0,0,0.1)" },
+      tap: { scale: 0.98 },
+      transition: { type: "spring", stiffness: 400, damping: 10 }
+    }
+
+    // Entrance animation
+    const entranceAnimation = shouldReduceMotion ? {} : {
+      initial: { opacity: 0, y: 8 },
+      animate: { opacity: 1, y: 0 },
+      viewport: { once: true, margin: "0px 0px -50px 0px" }
+    }
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        whileHover={shouldReduceMotion ? undefined : animation?.hover ?? defaultAnimations.hover}
+        whileTap={shouldReduceMotion ? undefined : animation?.tap ?? defaultAnimations.tap}
+        transition={animation?.transition ?? defaultAnimations.transition}
+        {...entranceAnimation}
         {...props}
       />
     )

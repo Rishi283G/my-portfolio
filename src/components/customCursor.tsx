@@ -9,25 +9,24 @@ const CustomCursor = () => {
   const [cursorType, setCursorType] = useState<'default' | 'text' | 'pointer'>('default');
   const [isClicking, setIsClicking] = useState(false);
   const trailElementsRef = useRef<HTMLDivElement[]>([]);
-  const trailCount = 5; // Number of trailing dots
+  const trailCount = 5;
   const trailPositions = useRef<Array<{x: number, y: number}>>([]);
-  const magnetStrength = 0.3; // Adjust magnetic pull (0-1)
+  const magnetStrength = 0.3;
   const rafRef = useRef<number | null>(null);
   const mousePos = useRef({ x: 0, y: 0 });
   const cursorPos = useRef({ x: 0, y: 0 });
   const lastTrailUpdate = useRef<number>(0);
-  const trailUpdateInterval = 40; // ms between trail updates
+  const trailUpdateInterval = 40;
+  const [lastTapTime, setLastTapTime] = useState(0);
+  const touchTimeout = useRef<number | null>(null);
 
-  // Handle magnetism effect for interactive elements
   const getMagnetPosition = (mouseX: number, mouseY: number): { x: number, y: number } => {
-    // Skip magnetism if not hovering
     if (!isHovering) return { x: mouseX, y: mouseY };
 
     const interactiveElements = document.querySelectorAll('a, button, [role="button"], .interactive');
     let closestElement: Element | null = null;
     let closestDistance = Infinity;
     
-    // Find the closest interactive element
     interactiveElements.forEach(element => {
       const rect = element.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -37,7 +36,6 @@ const CustomCursor = () => {
         Math.pow(mouseY - centerY, 2)
       );
       
-      // Magnetism range: 50px
       if (distance < 50 && distance < closestDistance) {
         closestDistance = distance;
         closestElement = element;
@@ -48,8 +46,6 @@ const CustomCursor = () => {
       const rect = closestElement.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      
-      // Calculate magnetic pull based on distance
       const strength = Math.max(0, 1 - (closestDistance / 50)) * magnetStrength;
       const pullX = (centerX - mouseX) * strength;
       const pullY = (centerY - mouseY) * strength;
@@ -63,31 +59,24 @@ const CustomCursor = () => {
     return { x: mouseX, y: mouseY };
   };
 
-  // Animate cursor movement using requestAnimationFrame for smoothness
   const animateCursor = () => {
     const cursor = cursorRef.current;
     if (cursor) {
-      // Calculate smooth movement using lerp
       cursorPos.current.x += (mousePos.current.x - cursorPos.current.x) * 0.2;
       cursorPos.current.y += (mousePos.current.y - cursorPos.current.y) * 0.2;
       
-      // Apply position
       cursor.style.left = `${cursorPos.current.x}px`;
       cursor.style.top = `${cursorPos.current.y}px`;
       
-      // Update trail with throttling
       const now = Date.now();
       if (now - lastTrailUpdate.current > trailUpdateInterval) {
-        // Add current position to the start of the array
         trailPositions.current.unshift({ 
           x: cursorPos.current.x, 
           y: cursorPos.current.y 
         });
         
-        // Keep only what we need
         trailPositions.current = trailPositions.current.slice(0, trailCount);
         
-        // Update trail elements
         trailElementsRef.current.forEach((trail, index) => {
           if (trail && trailPositions.current[index]) {
             trail.style.left = `${trailPositions.current[index].x}px`;
@@ -102,28 +91,54 @@ const CustomCursor = () => {
     rafRef.current = requestAnimationFrame(animateCursor);
   };
 
+  const handlePointerDown = (x: number, y: number) => {
+    setIsClicking(true);
+    
+    if (clickRippleRef.current) {
+      clickRippleRef.current.style.left = `${x}px`;
+      clickRippleRef.current.style.top = `${y}px`;
+      clickRippleRef.current.classList.add('active');
+      
+      setTimeout(() => {
+        if (clickRippleRef.current) {
+          clickRippleRef.current.classList.remove('active');
+        }
+      }, 700);
+    }
+  };
+
+  const handleTouchStart = (e: TouchEvent) => {
+    const now = Date.now();
+    if (now - lastTapTime < 300) {
+      e.preventDefault();
+    }
+    setLastTapTime(now);
+
+    const touch = e.touches[0];
+    handlePointerDown(touch.clientX, touch.clientY);
+
+    if (touchTimeout.current) clearTimeout(touchTimeout.current);
+    touchTimeout.current = window.setTimeout(() => {
+      setIsClicking(false);
+    }, 200);
+  };
+
   useEffect(() => {
     const cursor = cursorRef.current;
     const clickRipple = clickRippleRef.current;
     if (!cursor || !clickRipple) return;
 
-    // Show cursor after component mounts
     setIsVisible(true);
-    
-    // Start animation loop
     rafRef.current = requestAnimationFrame(animateCursor);
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Apply magnetism and store mouse position
       const magnetPos = getMagnetPosition(e.clientX, e.clientY);
       mousePos.current = magnetPos;
     };
 
-    // Check if element is interactive
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       
-      // Check for text input fields
       if (
         target.tagName.toLowerCase() === 'input' || 
         target.tagName.toLowerCase() === 'textarea' ||
@@ -134,7 +149,6 @@ const CustomCursor = () => {
         return;
       }
       
-      // Check for interactive elements
       if (
         target.tagName.toLowerCase() === 'a' || 
         target.tagName.toLowerCase() === 'button' ||
@@ -146,40 +160,28 @@ const CustomCursor = () => {
         return;
       }
       
-      // Default state
       setCursorType('default');
       setIsHovering(false);
     };
 
-    // Handle mouse click effect
     const handleMouseDown = (e: MouseEvent) => {
-      setIsClicking(true);
-      
-      // Position and show click ripple
-      if (clickRipple) {
-        clickRipple.style.left = `${e.clientX}px`;
-        clickRipple.style.top = `${e.clientY}px`;
-        clickRipple.classList.add('active');
-        
-        // Remove active class after animation completes
-        setTimeout(() => {
-          clickRipple.classList.remove('active');
-        }, 700); // Match animation duration
-      }
+      handlePointerDown(e.clientX, e.clientY);
     };
     
     const handleMouseUp = () => {
       setIsClicking(false);
     };
 
-    // Hide real cursor when mouse enters the window
     const handleMouseEnter = () => {
       setIsVisible(true);
     };
 
-    // Show real cursor when mouse leaves the window
     const handleMouseLeave = () => {
       setIsVisible(false);
+    };
+
+    const handleTouchEnd = () => {
+      setIsClicking(false);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -188,8 +190,10 @@ const CustomCursor = () => {
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mouseenter', handleMouseEnter);
     document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchcancel', handleTouchEnd);
 
-    // Create trail elements
     for (let i = 0; i < trailCount; i++) {
       const trail = document.createElement('div');
       trail.className = 'cursor-trail';
@@ -201,27 +205,29 @@ const CustomCursor = () => {
     }
 
     return () => {
-      // Cancel animation frame
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
       }
       
-      // Remove event listeners
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mouseenter', handleMouseEnter);
       document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
       
-      // Clean up trail elements
       trailElementsRef.current.forEach(trail => {
         if (trail && trail.parentNode) {
           trail.parentNode.removeChild(trail);
         }
       });
+      
+      if (touchTimeout.current) clearTimeout(touchTimeout.current);
     };
-  }, [isHovering]);
+  }, [isHovering, lastTapTime]);
 
   return (
     <>

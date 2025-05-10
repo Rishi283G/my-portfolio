@@ -147,8 +147,25 @@
     .cursor, .cursor-trail, .cursor-click-ripple {
       display: none;
     }
+    .gradient-text {
+      @apply bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text;
+    }
     
     html, body, a, button, [role="button"], .interactive {
       cursor: auto !important;
     }
   }
+  /* Media query for touch devices */
+@media (pointer: coarse) {
+  .cursor, .cursor-trail {
+    display: none;
+  }
+  /* Keep cursor-click-ripple visible for touch animations */
+  .cursor-click-ripple {
+    display: block !important;
+    /* Reset some properties for touch */
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  /* ... rest of your existing media query styles ... */
+}
