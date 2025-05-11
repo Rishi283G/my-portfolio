@@ -20,6 +20,8 @@ export default function Footer() {
       },
     },
   };
+  
+  
 
   return (
     <footer
@@ -169,6 +171,7 @@ export default function Footer() {
           </p>
         </motion.div>
       </motion.div>
+      
     </footer>
   );
 }

@@ -1,6 +1,5 @@
 import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimationWrapper } from "./anime";
 import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 
 export default function Hero() {
@@ -10,7 +9,7 @@ export default function Hero() {
   const rotateX = useSpring(useMotionValue(0), springConfig);
   const rotateY = useSpring(useMotionValue(0), springConfig);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = (clientX - left - width / 2) / 25;
@@ -57,7 +56,8 @@ export default function Hero() {
           </div>
 
           {/* RIGHT IMAGE SECTION */}
-          <div className="order-1 lg:order-2 flex justify-center">
+          <div className="order-1 lg:order-2 flex flex-col items-center">
+            {/* PROFILE IMAGE */}
             <motion.div
               className="relative group"
               onMouseMove={handleMouseMove}
@@ -65,26 +65,14 @@ export default function Hero() {
                 rotateX.set(0);
                 rotateY.set(0);
               }}
-              style={{
-                perspective: 1000,
-                transformStyle: "preserve-3d",
-              }}
+              style={{ perspective: 1000, transformStyle: "preserve-3d" }}  
             >
               <motion.div
                 className="absolute -inset-2 rounded-full bg-gradient-to-br from-primary/60 to-accent/30 blur-xl opacity-70 group-hover:opacity-90 transition-opacity duration-300"
                 initial={{ scale: 0.8 }}
-                animate={{
-                  scale: 1,
-                  rotate: [0, 5, -5, 0],
-                }}
-                transition={{
-                  duration: 8,
-                  repeat: Infinity,
-                  repeatType: "mirror",
-                  ease: "easeInOut",
-                }}
+                animate={{ scale: 1, rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 8, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
               />
-
               <motion.div
                 className="relative aspect-square w-64 md:w-80 bg-muted rounded-full overflow-hidden border-4 border-background shadow-2xl"
                 style={{
@@ -99,46 +87,16 @@ export default function Hero() {
               >
                 <motion.div
                   className="w-full h-full relative"
-                  animate={{
-                    y: [0, -15, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
+                  animate={{ y: [0, -15, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 >
                   <img
                     src="/lovable-uploads/9f3affde-eade-442b-b40d-f96efe92f2c0.png"
                     alt="Rushikesh Jadhav"
-                    className="w-full h-full object-cover scale-[1.15]"
+                    className="w-full h-full object-cover scale-[1.12]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 mix-blend-multiply" />
                 </motion.div>
-
-                {/* Floating particles */}
-                <motion.div
-                  className="absolute top-10 left-10 w-2 h-2 rounded-full bg-primary"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: [0, 1, 0] }}
-                  transition={{
-                    delay: 0.5,
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                <motion.div
-                  className="absolute bottom-12 right-8 w-3 h-3 rounded-full bg-accent"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: [0, 1, 0] }}
-                  transition={{
-                    delay: 1,
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
               </motion.div>
             </motion.div>
           </div>

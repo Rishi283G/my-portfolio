@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AnimationWrapper, StaggerContainer } from "./anime";
+import ModelViewer from "@/components/ModelViewer";
 
 export default function Skills() {
   const skillCategories = [
@@ -23,6 +24,7 @@ export default function Skills() {
       icon: <Code2 className="h-5 w-5 text-primary" />,
       skills: ["HTML", "CSS", "JavaScript", "React (learning)"],
     },
+    
     {
       title: "Tools",
       icon: <Terminal className="h-5 w-5 text-primary" />,
@@ -52,18 +54,27 @@ export default function Skills() {
 
   return (
     <section id="skills" className="py-20">
+      
       <div className="container">
+        
         <AnimationWrapper direction="up">
           <div className="text-center mb-16">
             <h2 className="font-poppins text-3xl md:text-4xl font-bold">
+             
               My <span className="gradient-text">Skills</span>
             </h2>
+       
             <div className="mt-4 mx-auto max-w-xl">
+              
               <p className="text-muted-foreground">
                 Technologies and tools I've learned and currently using to build digital experiences.
+                
               </p>
+   
             </div>
+            
           </div>
+  
         </AnimationWrapper>
 
         <StaggerContainer
@@ -102,8 +113,14 @@ export default function Skills() {
         </StaggerContainer>
 
         <div className="mt-16 text-center">
+                           <ModelViewer 
+  modelSrc="public/models/react_logo.glb"
+  height="300px"
+  animated={true}
+/>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
             <GitBranch className="h-4 w-4 text-primary" />
+            
             <span className="text-sm">Always learning and growing my skill set</span>
           </div>
         </div>
