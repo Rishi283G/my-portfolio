@@ -76,7 +76,7 @@ export default function Projects() {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.4 }}
     >
       <div className="container">
         <div className="text-center mb-16">
@@ -92,7 +92,7 @@ export default function Projects() {
             className="mt-4 mx-auto max-w-xl"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            transition={{ delay: 0.4, duration: 0.2 }}
           >
             <p className="text-muted-foreground">
               A selection of projects I've built during my self-taught journey.
