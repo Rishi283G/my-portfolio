@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AnimationWrapper, StaggerContainer } from "./anime";
 
 const Testimonials = () => {
-  // Sample testimonial data - you can replace with your actual data
+  // Sample testimonial data
   const testimonials = [
     {
       id: 1,
@@ -28,20 +28,67 @@ const Testimonials = () => {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState(null); // 'left' or 'right'
+  const slideRef = useRef(null);
 
   // Auto rotate testimonials
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => 
-        prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
-      );
+      if (!isTransitioning) {
+        handleTransitionStart('auto');
+        setCurrentIndex((prevIndex) => 
+          prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
+        );
+      }
     }, 7000);
     return () => clearInterval(interval);
-  }, [testimonials.length]);
+  }, [testimonials.length, isTransitioning]);
+
+  // Handle transition states
+  const handleTransitionStart = (direction = null) => {
+    setIsTransitioning(true);
+    setSwipeDirection(direction);
+    setTimeout(() => {
+      setIsTransitioning(false);
+      setSwipeDirection(null);
+    }, 500);
+  };
 
   // Navigate to specific testimonial
   const goToTestimonial = (index) => {
-    setCurrentIndex(index);
+    if (currentIndex !== index && !isTransitioning) {
+      const direction = index > currentIndex ? 'left' : 'right';
+      handleTransitionStart(direction);
+      setCurrentIndex(index);
+    }
+  };
+
+  // Handle touch events for swiping
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isTransitioning) {
+      if (touchStart - touchEnd > 75) {
+        // Swipe left
+        handleTransitionStart('left');
+        setCurrentIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1);
+      }
+      
+      if (touchEnd - touchStart > 75) {
+        // Swipe right
+        handleTransitionStart('right');
+        setCurrentIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1);
+      }
+    }
   };
 
   // Render stars based on rating
@@ -49,8 +96,7 @@ const Testimonials = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <svg 
         key={i} 
-        className={`w-5 h-5 ${i < rating ? 'text-yellow-400' : 'text-gray-400 dark:text-gray-600'}`}
-
+        className={`w-5 h-5 ${i < rating ? 'text-purple-500' : 'text-gray-700'}`}
         fill="currentColor" 
         viewBox="0 0 20 20"
       >
@@ -59,98 +105,142 @@ const Testimonials = () => {
     ));
   };
 
-  return (
-    <section id="testimonials" className="py-16 bg-gray-100 dark:bg-gradient-to-b dark:from-gray-900 dark:to-gray-800 dark:text-white text-gray-900 transition-colors duration-500">
+  // Get slide animation class based on direction
+  const getSlideAnimation = () => {
+    if (!swipeDirection) return '';
+    
+    if (swipeDirection === 'left') {
+      return isTransitioning ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100';
+    } else if (swipeDirection === 'right') {
+      return isTransitioning ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100';
+    } else {
+      return isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100';
+    }
+  };
 
+  return (
+    <section id="testimonials" className="py-16 bg-black text-white transition-colors duration-500 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <AnimationWrapper direction='up'>
-          <h2 className="text-4xl font-bold mb-2">Client Testimonials</h2>
+            <h2 className="text-4xl font-bold mb-2">Client <span className="gradient-text">Testimonials</span></h2>
+            <div className="w-24 h-1 bg-purple-700 mx-auto"></div>
+            <p className="mt-4 text-gray-400">
+              What clients are saying about my work
+            </p>
           </AnimationWrapper>
-          <div className="w-24 h-1 bg-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-300 transition-colors duration-500"></p>
-
         </div>
+
         <AnimationWrapper direction='up'>
-        <div className="relative">
-          {/* Main testimonial card */}
-          <AnimationWrapper direction='up'>
-       <div className="bg-white dark:bg-gray-800 rounded-xl p-8 md:p-10 shadow-2xl border border-gray-200 dark:border-gray-700 transition-colors duration-500">
-       <AnimationWrapper direction='up'>
-            <div className="flex justify-center mb-6 space-x-1">
-              {renderStars(testimonials[currentIndex].rating)}
+          <div 
+            className="relative"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Mobile swipe indicator */}
+            <div className="md:hidden flex justify-center mb-6">
+              <div className="flex items-center px-4 py-2 bg-gray-900 rounded-full space-x-2 border border-gray-800">
+                <svg className="w-5 h-5 text-purple-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="text-sm text-gray-300">Swipe to navigate</span>
+                <svg className="w-5 h-5 text-purple-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
-            </AnimationWrapper>
-            <div className="relative">
-              <svg className="text-blue-500 w-12 h-12 opacity-20 absolute -top-6 -left-2" fill="currentColor" viewBox="0 0 32 32">
-                <path d="M10 8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V10c0-1.1-.9-2-2-2h-6zm16-8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V2c0-1.1-.9-2-2-2h-6z" />
-              </svg>
+
+            {/* Main testimonial card */}
+            <div 
+              ref={slideRef}
+              className={`bg-gray-900 rounded-xl p-8 md:p-10 shadow-2xl border border-gray-800 transition-all duration-500 transform ${getSlideAnimation()}`}
+              style={{
+                boxShadow: '0 10px 30px -10px rgba(139, 92, 246, 0.2), 0 4px 6px -2px rgba(139, 92, 246, 0.05)',
+              }}
+            >
               <AnimationWrapper direction='up'>
-              <p className="text-lg md:text-xl italic leading-relaxed">
-                {testimonials[currentIndex].text}
-              </p>
+                <div className="flex justify-center mb-6 space-x-1">
+                  {renderStars(testimonials[currentIndex].rating)}
+                </div>
               </AnimationWrapper>
-              <svg className="text-blue-500 w-12 h-12 opacity-20 absolute -bottom-6 -right-2" fill="currentColor" viewBox="0 0 32 32">
-                <path d="M22 24c2.2 0 4-1.8 4-4V10c0-2.2-1.8-4-4-4H12c-2.2 0-4 1.8-4 4v6.4c0 1.1.9 1.6 2 1.6h2c1.1 0 2 .5 2 1.6V22c0 1.1.9 2 2 2h6zM6 32c2.2 0 4-1.8 4-4V18c0-2.2-1.8-4-4-4H-4c-2.2 0-4 1.8-4 4v6.4c0 1.1.9 1.6 2 1.6h2c1.1 0 2 .5 2 1.6V30c0 1.1.9 2 2 2h6z" />
-              </svg>
-            </div>
-            <AnimationWrapper direction='up'>
-            <div className="mt-8 flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-2xl font-bold">
-                {testimonials[currentIndex].author.charAt(0)}
+              <div className="relative">
+                <svg className="text-purple-600 w-10 h-10 opacity-20 absolute -top-6 -left-2" fill="currentColor" viewBox="0 0 32 32">
+                  <path d="M10 8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V10c0-1.1-.9-2-2-2h-6zm16-8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V2c0-1.1-.9-2-2-2h-6z" />
+                </svg>
+                <AnimationWrapper direction='up'>
+                  <p className="text-lg md:text-xl italic leading-relaxed text-gray-300">
+                    {testimonials[currentIndex].text}
+                  </p>
+                </AnimationWrapper>
+                <svg className="text-purple-600 w-10 h-10 opacity-20 absolute -bottom-6 -right-2" fill="currentColor" viewBox="0 0 32 32">
+                  <path d="M22 24c2.2 0 4-1.8 4-4V10c0-2.2-1.8-4-4-4H12c-2.2 0-4 1.8-4 4v6.4c0 1.1.9 1.6 2 1.6h2c1.1 0 2 .5 2 1.6V22c0 1.1.9 2 2 2h6zM6 32c2.2 0 4-1.8 4-4V18c0-2.2-1.8-4-4-4H-4c-2.2 0-4 1.8-4 4v6.4c0 1.1.9 1.6 2 1.6h2c1.1 0 2 .5 2 1.6V30c0 1.1.9 2 2 2h6z" />
+                </svg>
               </div>
-              <div className="mt-4">
-                <h4 className="font-bold text-xl">{testimonials[currentIndex].author}</h4>
-                <p className="text-blue-400 text-sm">{testimonials[currentIndex].source}</p>
-              </div>
+              <AnimationWrapper direction='up'>
+                <div className="mt-8 flex flex-col items-center">
+                  <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+                    {testimonials[currentIndex].author.charAt(0)}
+                  </div>
+                  <div className="mt-4 text-center">
+                    <h4 className="font-bold text-xl text-white">{testimonials[currentIndex].author}</h4>
+                    <p className="text-purple-400 text-sm font-medium">{testimonials[currentIndex].source}</p>
+                  </div>
+                </div>
+              </AnimationWrapper>
             </div>
-            </AnimationWrapper>
-          </div>
-          </AnimationWrapper>
-          {/* Navigation dots */}
-          <div className="flex justify-center mt-8 space-x-3">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToTestimonial(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  currentIndex === index ? "bg-blue-500 w-6" : "bg-gray-600"
-                }`}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
-          </div>
 
-          {/* Navigation arrows */}
+            {/* Navigation dots - enhanced for mobile */}
+            <div className="flex justify-center mt-8 space-x-3">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToTestimonial(index)}
+                  className={`w-3 h-3 rounded-full transition-all transform ${
+                    currentIndex === index 
+                      ? "bg-purple-600 w-8 scale-110" 
+                      : "bg-gray-800 hover:bg-gray-700"
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
 
-          <div className="hidden md:block">
-            <button 
-              onClick={() => setCurrentIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1)}
-              className="absolute top-1/2 -left-6 transform -translate-y-1/2 bg-gray-800 hover:bg-gray-700 rounded-full p-2 focus:outline-none"
-              aria-label="Previous testimonial"
-            >
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button 
-              onClick={() => setCurrentIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1)}
-              className="absolute top-1/2 -right-6 transform -translate-y-1/2 bg-gray-800 hover:bg-gray-700 rounded-full p-2 focus:outline-none"
-              aria-label="Next testimonial"
-            >
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-      
+            {/* Navigation arrows - enhanced for desktop */}
+            <div className="hidden md:block">
+              <button 
+                onClick={() => {
+                  if (!isTransitioning) {
+                    handleTransitionStart('right');
+                    setCurrentIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1);
+                  }
+                }}
+                className="absolute top-1/2 -left-6 transform -translate-y-1/2 bg-gray-900 hover:bg-purple-600 rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all shadow-lg border border-gray-800"
+                aria-label="Previous testimonial"
+              >
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button 
+                onClick={() => {
+                  if (!isTransitioning) {
+                    handleTransitionStart('left');
+                    setCurrentIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1);
+                  }
+                }}
+                className="absolute top-1/2 -right-6 transform -translate-y-1/2 bg-gray-900 hover:bg-purple-600 rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all shadow-lg border border-gray-800"
+                aria-label="Next testimonial"
+              >
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
-       
-        </div>
         </AnimationWrapper>
       </div>
-      
     </section>   
-
   );
 };    
 

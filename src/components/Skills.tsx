@@ -113,11 +113,11 @@ export default function Skills() {
         </StaggerContainer>
 
         <div className="mt-16 text-center">
-                           <ModelViewer 
+                           {/* <ModelViewer 
   modelSrc="public/models/react_logo.glb"
   height="300px"
   animated={true}
-/>
+/> */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
             <GitBranch className="h-4 w-4 text-primary" />
             

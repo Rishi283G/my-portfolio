@@ -27,6 +27,10 @@
     --ring: 252 59% 48%;
     --radius: 0.75rem;
   }
+body {
+  @apply font-inter;
+  font-family: 'Inter', 'Poppins', sans-serif;
+}
 
   .dark {
     --background: 240 10% 3.9%;
