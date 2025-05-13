@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AnimationWrapper, StaggerContainer } from "./anime";
-import ModelViewer from "@/components/ModelViewer";
+// import ModelViewer from "@/components/ModelViewer";
 
 export default function Skills() {
   const skillCategories = [
