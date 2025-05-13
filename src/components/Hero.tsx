@@ -2,8 +2,7 @@ import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
-import { useEffect, useState, useCallback } from "react";
-import { debounce } from "lodash";
+import { useEffect, useState } from "react";
 
 // Create a motion-enabled Button
 const MotionButton = motion(Button);
@@ -11,12 +10,12 @@ const MotionButton = motion(Button);
 export default function Hero() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const springConfig = { damping: 20, stiffness: 300 };
+  const springConfig = { damping: 15, stiffness: 150 }; // Lighter spring for faster response
   const rotateX = useSpring(useMotionValue(0), springConfig);
   const rotateY = useSpring(useMotionValue(0), springConfig);
 
   // State to control welcome animation visibility
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   // Particle state for animation
   const [particles, setParticles] = useState([]);
@@ -29,7 +28,7 @@ export default function Hero() {
 
   // Welcome screen animation variants
   const welcomeScreenVariants = {
-    hidden: { opacity: 1, scale: 1 }, // Start fully visible
+    hidden: { opacity: 1, scale: 1 },
     visible: { opacity: 1, scale: 1, transition: { duration: 0 } },
     exit: { opacity: 0, scale: 1.2, transition: { duration: 0.7, ease: "easeIn" } },
   };
@@ -53,33 +52,60 @@ export default function Hero() {
     },
   };
 
-  // Debounced mouse move handler
-  const handleMouseMove = useCallback(
-    debounce((e) => {
-      const { clientX, clientY } = e;
-      const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-      const x = (clientX - left - width / 2) / 25;
-      const y = (clientY - top - height / 2) / 25;
-      mouseX.set(clientX - left);
-      mouseY.set(clientY - top);
-      rotateX.set(-y);
-      rotateY.set(x);
-    }, 16), // ~60fps
-    []
-  );
+  // Progress bar animation
+  const progressVariants = {
+    hidden: { width: '0%' },
+    visible: { 
+      width: '100%', 
+      transition: { duration: 10, ease: 'linear' } // Matches 10s welcome animation
+    },
+  };
 
-  // Image shadow template
-  const imageShadow = useMotionTemplate`rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  // Handle mouse movement for 3D tilt effect
+  const handleMouseMove = (e) => {
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    const x = (clientX - centerX) / (width / 2); // Normalize to -1 to 1
+    const y = (clientY - centerY) / (height / 2); // Normalize to -1 to 1
+    rotateY.set(x * 10); // Reduced to 10deg for lighter feel
+    rotateX.set(-y * 10); // Reduced to 10deg for lighter feel
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  };
 
-  // Generate particles for animation
+  // Reset rotation on mouse leave
+  const handleMouseLeave = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  // Image transform template
+  const imageTransform = useMotionTemplate`rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+  // Check sessionStorage and control welcome animation
   useEffect(() => {
+    const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome');
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+      sessionStorage.setItem('hasSeenWelcome', 'true');
+    }
+  }, []);
+
+  // Generate particles for animation and handle welcome animation timeout
+  useEffect(() => {
+    if (!showWelcome) return;
+
     const newParticles = Array.from({ length: 12 }, () => ({
       id: Math.random(),
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       size: Math.random() * 4 + 2,
       duration: Math.random() * 3 + 2,
-      color: Math.random() > 0.5 ? '#4F46E5' : '#EC4899', // Theme colors
+      color: Math.random() > 0.5 ? '#4F46E5' : '#EC4899',
     }));
     setParticles(newParticles);
 
@@ -88,7 +114,7 @@ export default function Hero() {
       setShowWelcome(false);
     }, 10000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [showWelcome]);
 
   return (
     <>
@@ -106,21 +132,24 @@ export default function Hero() {
       {showWelcome && (
         <motion.div
           className="fixed inset-0 flex items-center justify-center z-50"
-          style={{ background
-
-: 'var(--welcome-bg)' }}
+          style={{ background: 'var(--welcome-bg)' }}
           variants={welcomeScreenVariants}
           initial="hidden"
           animate="visible"
           exit="exit"
         >
-          {/* Loading Spinner */}
+          {/* Progress Bar */}
           <motion.div
-            className="absolute w-8 h-8 border-4 border-t-transparent border-white rounded-full z-15"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            style={{ top: '10%', left: '50%', transform: 'translateX(-50%)' }}
-          />
+            className="absolute bottom-10 w-64 h-2 bg-white/20 rounded-full overflow-hidden"
+            style={{ left: '50%', transform: 'translateX(-50%)' }}
+          >
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#4F46E5] to-[#EC4899]"
+              variants={progressVariants}
+              initial="hidden"
+              animate="visible"
+            />
+          </motion.div>
 
           {/* Particle Animation */}
           {particles.map((particle) => (
@@ -204,7 +233,7 @@ export default function Hero() {
               opacity: [0, 1, 1, 0],
               scale: [0, 1.2, 1.2, 0],
             }}
-            transition={{ duration: 2.5, repeat: Infinity,  onmousemove, delay: 1 }}
+            transition={{ duration: 2.5, repeat: Infinity, delay: 1 }}
             style={{ top: '60%', left: '40%' }}
           />
         </motion.div>
@@ -322,10 +351,7 @@ export default function Hero() {
               <motion.div
                 className="relative group"
                 onMouseMove={handleMouseMove}
-                onMouseLeave={() => {
-                  rotateX.set(0);
-                  rotateY.set(0);
-                }}
+                onMouseLeave={handleMouseLeave}
                 style={{ perspective: 1000, transformStyle: "preserve-3d" }}
               >
                 <motion.div
@@ -346,7 +372,7 @@ export default function Hero() {
                 <motion.div
                   className="relative aspect-square w-64 md:w-80 bg-muted rounded-full overflow-hidden border-4 border-background shadow-2xl"
                   style={{
-                    transform: imageShadow,
+                    transform: imageTransform,
                     boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                   }}
                   initial={{ opacity: 0, y: 50 }}
@@ -357,11 +383,10 @@ export default function Hero() {
                 >
                   <motion.div
                     className="w-full h-full relative"
-                    animate={{ y: [0, -15, 0] }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
+                    style={{
+                      x: rotateY, // Parallax effect
+                      y: rotateX,
+                      transition: 'transform 0.05s ease-out', // Faster transition
                     }}
                   >
                     <img

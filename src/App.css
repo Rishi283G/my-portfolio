@@ -46,4 +46,3 @@
 .gradient-text {
   @apply bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text;
 }
-
