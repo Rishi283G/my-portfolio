@@ -11,6 +11,7 @@ const CURSOR_CONFIG = {
   CURSOR_LERP: 0.2,
   CLICK_RIPPLE_DURATION: 700, // ms
   TOUCH_DEBOUNCE: 300, // ms
+  TAP_THRESHOLD: 10, // px (max movement for a tap)
 } as const;
 
 // Type definitions
@@ -24,13 +25,15 @@ const CustomCursor = () => {
   const clickRippleRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const [cursorType, setCursorType] = useState<'default' | 'text' | 'pointer'>('default');
+  const [cursorType, setCursorType] = useState<'default' | 'text' | 'pointer' | 'welcome'>('default');
   const [isClicking, setIsClicking] = useState(false);
   const trailPositions = useRef<Position[]>([]);
   const mousePos = useRef<Position>({ x: 0, y: 0 });
   const cursorPos = useRef<Position>({ x: 0, y: 0 });
   const lastTrailUpdate = useRef<number>(0);
   const rafRef = useRef<number | null>(null);
+  const touchStartPos = useRef<Position | null>(null);
+  const isTouching = useRef(false);
 
   // Get magnetized position for interactive elements
   const getMagnetPosition = (mouseX: number, mouseY: number): Position => {
@@ -44,9 +47,7 @@ const CustomCursor = () => {
       const rect = element.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      const distance = Math.sqrt(
-        (mouseX - centerX) ** 2 + (mouseY - centerY) ** 2
-      );
+      const distance = Math.sqrt((mouseX - centerX) ** 2 + (mouseY - centerY) ** 2);
 
       if (distance < CURSOR_CONFIG.MAGNET_DISTANCE && distance < closestDistance) {
         closestDistance = distance;
@@ -76,7 +77,7 @@ const CustomCursor = () => {
     cursorPos.current.x += (mousePos.current.x - cursorPos.current.x) * CURSOR_CONFIG.CURSOR_LERP;
     cursorPos.current.y += (mousePos.current.y - cursorPos.current.y) * CURSOR_CONFIG.CURSOR_LERP;
 
-    cursor.style.transform = `translate3d(${cursorPos.current.x}px, ${cursorPos.current.y}px, 0)`;
+    cursor.style.transform = `translate(-50%, -50%) translate3d(${cursorPos.current.x}px, ${cursorPos.current.y}px, 0)`;
 
     const now = Date.now();
     if (now - lastTrailUpdate.current > CURSOR_CONFIG.TRAIL_UPDATE_INTERVAL) {
@@ -88,17 +89,26 @@ const CustomCursor = () => {
     rafRef.current = requestAnimationFrame(animateCursor);
   };
 
-  // Handle pointer down (mouse or touch)
+  // Handle pointer down (mouse or tap)
   const handlePointerDown = (x: number, y: number) => {
     setIsClicking(true);
 
     if (clickRippleRef.current) {
-      clickRippleRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      // Position exactly at click/tap location
+      clickRippleRef.current.style.left = `${x}px`;
+      clickRippleRef.current.style.top = `${y}px`;
+      
+      // Reset animation
+      clickRippleRef.current.classList.remove('active');
+      // Force reflow
+      void clickRippleRef.current.offsetWidth;
       clickRippleRef.current.classList.add('active');
 
       setTimeout(() => {
-        clickRippleRef.current?.classList.remove('active');
-        setIsClicking(false);
+        if (clickRippleRef.current) {
+          clickRippleRef.current.classList.remove('active');
+          setIsClicking(false);
+        }
       }, CURSOR_CONFIG.CLICK_RIPPLE_DURATION);
     }
   };
@@ -108,8 +118,18 @@ const CustomCursor = () => {
     const clickRipple = clickRippleRef.current;
     if (!cursor || !clickRipple) return;
 
-    setIsVisible(true);
-    rafRef.current = requestAnimationFrame(animateCursor);
+    // Check if on touch device
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+
+    // Initialize cursor based on device type
+    if (isTouchDevice) {
+      setIsVisible(false);
+      document.body.style.cursor = 'auto';
+    } else {
+      setIsVisible(true);
+      rafRef.current = requestAnimationFrame(animateCursor);
+      document.body.style.cursor = 'none';
+    }
 
     // Throttled mouse move handler
     const handleMouseMove = throttle((e: MouseEvent) => {
@@ -136,7 +156,7 @@ const CustomCursor = () => {
         target.closest('[role="button"]') ||
         target.classList.contains('interactive')
       ) {
-        setCursorType('pointer');
+        setCursorType(target.classList.contains('welcome') ? 'welcome' : 'pointer');
         setIsHovering(true);
         return;
       }
@@ -150,26 +170,82 @@ const CustomCursor = () => {
     };
 
     const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault(); // Prevent scrolling during touch
+      if (e.touches.length !== 1) return; // Ignore multi-touch
       const touch = e.touches[0];
-      handlePointerDown(touch.clientX, touch.clientY);
+      touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+      isTouching.current = true;
+      
+      // For debugging - add a console log to verify touch coordinates
+      console.log(`Touch start at: ${touch.clientX}, ${touch.clientY}`);
     };
 
-    const handleMouseEnter = () => setIsVisible(true);
-    const handleMouseLeave = () => setIsVisible(false);
-    const handleTouchEnd = () => setIsClicking(false);
+    const handleTouchMove = throttle((e: TouchEvent) => {
+      if (!isTouching.current || !touchStartPos.current) return;
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseover', handleMouseOver);
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+
+      // If movement exceeds tap threshold, treat as swipe (allow scrolling)
+      if (deltaX > CURSOR_CONFIG.TAP_THRESHOLD || deltaY > CURSOR_CONFIG.TAP_THRESHOLD) {
+        isTouching.current = false;
+        touchStartPos.current = null;
+      }
+    }, 16);
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (isTouching.current && touchStartPos.current && e.changedTouches.length > 0) {
+        // Only trigger tap if minimal movement occurred
+        const touch = e.changedTouches[0];
+        const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+        const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+        
+        if (deltaX <= CURSOR_CONFIG.TAP_THRESHOLD && deltaY <= CURSOR_CONFIG.TAP_THRESHOLD) {
+          // It's a tap, show ripple effect
+          console.log(`Touch end/tap at: ${touch.clientX}, ${touch.clientY}`);
+          handlePointerDown(touch.clientX, touch.clientY);
+        }
+      }
+      
+      isTouching.current = false;
+      touchStartPos.current = null;
+    };
+
+    // Specifically handle clicks for mobile
+    const handleClick = (e: MouseEvent) => {
+      if (isTouchDevice) {
+        handlePointerDown(e.clientX, e.clientY);
+      }
+    };
+
+    const handleMouseEnter = () => !isTouchDevice && setIsVisible(true);
+    const handleMouseLeave = () => !isTouchDevice && setIsVisible(false);
+
+    if (!isTouchDevice) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseover', handleMouseOver);
+      document.addEventListener('mousedown', handleMouseDown);
+      document.addEventListener('mouseenter', handleMouseEnter);
+      document.addEventListener('mouseleave', handleMouseLeave);
+    } else {
+      // For touch devices, we want the ripple but not the cursor
+      document.addEventListener('click', handleClick);
+    }
+    
+    // Touch events for all devices
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
     document.addEventListener('touchend', handleTouchEnd);
     document.addEventListener('touchcancel', handleTouchEnd);
-    document.addEventListener('mouseenter', handleMouseEnter);
-    document.addEventListener('mouseleave', handleMouseLeave);
 
-    // Hide default cursor
-    document.body.style.cursor = 'none';
+    // Specifically for mobile ripple effect - direct tap handler
+    if (isTouchDevice) {
+      // Listen for tap events directly
+      document.addEventListener('click', (e) => {
+        console.log(`Click detected at: ${e.clientX}, ${e.clientY}`);
+        handlePointerDown(e.clientX, e.clientY);
+      });
+    }
 
     return () => {
       if (rafRef.current !== null) {
@@ -180,12 +256,15 @@ const CustomCursor = () => {
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('touchcancel', handleTouchEnd);
       document.removeEventListener('mouseenter', handleMouseEnter);
       document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('click', handleClick);
 
-      handleMouseMove.cancel(); // Cancel throttled function
+      handleMouseMove.cancel();
+      handleTouchMove.cancel();
       document.body.style.cursor = 'auto';
     };
   }, [isHovering]);
@@ -208,8 +287,8 @@ const CustomCursor = () => {
             width: `${8 - index}px`,
             height: `${8 - index}px`,
             transform: trailPositions.current[index]
-              ? `translate3d(${trailPositions.current[index].x}px, ${trailPositions.current[index].y}px, 0)`
-              : 'translate3d(0px, 0px, 0)',
+              ? `translate(-50%, -50%) translate3d(${trailPositions.current[index].x}px, ${trailPositions.current[index].y}px, 0)`
+              : 'translate(-50%, -50%) translate3d(0px, 0px, 0)',
           }}
         />
       ))}
