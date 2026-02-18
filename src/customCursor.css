@@ -21,35 +21,20 @@
   pointer-events: none;
   z-index: 10000;
   transition: 
-    transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
     width 0.4s ease,
     height 0.4s ease,
     background 0.3s ease;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%);
   filter: drop-shadow(var(--cursor-glow));
   mix-blend-mode: difference;
 }
 
-.cursor::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border: 2px solid var(--cursor-secondary);
-  border-radius: 50%;
-  opacity: 0.4;
-  transform: scale(1.2);
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
 .cursor-hover {
-  transform: translate(-50%, -50%) scale(1.8);
-  background: var(--cursor-secondary);
-}
-
-.cursor-hover::after {
-  transform: scale(0.8);
-  opacity: 0.8;
+  width: 60px;
+  height: 60px;
+  background: transparent;
+  border: 1px solid hsl(var(--primary) / 0.5);
+  box-shadow: 0 0 30px hsl(var(--primary) / 0.2);
 }
 
 .cursor-clicking {
@@ -57,39 +42,15 @@
   background: rgba(255, 50, 50, 0.8);
 }
 
-.cursor-pointer {
-  width: 24px;
-  height: 24px;
-  background: transparent;
-  border: 2px solid var(--cursor-secondary);
-}
-
-.cursor-text {
-  width: 6px;
-  height: 24px;
-  border-radius: 3px;
-  background: var(--cursor-secondary);
-}
-
-.cursor-welcome {
-  transform: translate(-50%, -50%) scale(2.5);
-  opacity: 0.3;
-}
-
 .cursor-trail {
   position: fixed;
-  width: 16px;
-  height: 16px;
-  background: var(--cursor-primary);
+  top: 0;
+  left: 0;
   border-radius: 50%;
+  background-color: hsl(var(--primary) / 0.1);
   pointer-events: none;
-  z-index: 9999;
-  transition: 
-    transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1),
-    opacity 0.6s ease,
-    width 0.6s ease,
-    height 0.6s ease;
-  filter: drop-shadow(var(--cursor-glow));
+  z-index: 9998;
+  transition: opacity 0.3s;
   mix-blend-mode: difference;
 }
 
@@ -97,12 +58,11 @@
   position: fixed;
   width: 10px;
   height: 10px;
-  border: 2px solid var(--cursor-secondary);
+  border: 2px solid hsl(var(--primary));
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9998;
-  animation: ripple 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-  mix-blend-mode: difference;
+  z-index: 9996;
+  animation: ripple 0.8s ease-out forwards;
 }
 
 @keyframes ripple {

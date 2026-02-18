@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
-import "../customCursor.css";
+import "../CustomCursor.css";
 
 const CURSOR_CONFIG = {
   TRAIL_COUNT: 12,
@@ -22,15 +22,23 @@ interface Position {
 const CustomCursor = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
+  const trailRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
   const [isVisible, setIsVisible] = useState(false);
   const [cursorState, setCursorState] = useState<'default' | 'text' | 'pointer' | 'welcome'>('default');
   const [isActive, setIsActive] = useState({ hover: false, click: false });
-  const trailPositions = useRef<Position[]>([]);
+  
   const mousePos = useRef<Position>({ x: 0, y: 0 });
   const cursorPos = useRef<Position>({ x: 0, y: 0 });
+  const trailPositions = useRef<Position[]>([]);
   const lastTrailUpdate = useRef<number>(0);
   const rafRef = useRef<number | null>(null);
   const touchStartPos = useRef<Position | null>(null);
+
+  // Initialize trail positions
+  useEffect(() => {
+    trailPositions.current = Array.from({ length: CURSOR_CONFIG.TRAIL_COUNT }, () => ({ x: 0, y: 0 }));
+  }, []);
 
   const createParticles = (x: number, y: number) => {
     if (!particlesRef.current) return;
@@ -60,9 +68,9 @@ const CustomCursor = () => {
   };
 
   const getMagnetPosition = (mouseX: number, mouseY: number): Position => {
-    const elements = document.querySelectorAll('a, button, [role="button"], .interactive');
+    const elements = document.querySelectorAll('a, button, [role="button"], .interactive, input[type="submit"], input[type="button"], [role="tab"], .cursor-pointer');
     let closestPos = { x: mouseX, y: mouseY };
-    let closestDistance = CURSOR_CONFIG.MAGNET_DISTANCE;
+    let closestDistance: number = CURSOR_CONFIG.MAGNET_DISTANCE;
 
     elements.forEach((element) => {
       const rect = element.getBoundingClientRect();
@@ -86,18 +94,28 @@ const CustomCursor = () => {
   const animateCursor = () => {
     if (!cursorRef.current) return;
 
+    // Smoothly follow mouse
     cursorPos.current.x += (mousePos.current.x - cursorPos.current.x) * CURSOR_CONFIG.CURSOR_LERP;
     cursorPos.current.y += (mousePos.current.y - cursorPos.current.y) * CURSOR_CONFIG.CURSOR_LERP;
 
     cursorRef.current.style.transform = 
       `translate(-50%, -50%) translate3d(${cursorPos.current.x}px, ${cursorPos.current.y}px, 0)`;
 
+    // Update trail
     const now = Date.now();
     if (now - lastTrailUpdate.current > CURSOR_CONFIG.TRAIL_UPDATE_INTERVAL) {
       trailPositions.current.unshift({ ...cursorPos.current });
-      trailPositions.current = trailPositions.current.slice(0, CURSOR_CONFIG.TRAIL_COUNT);
+      trailPositions.current.pop();
       lastTrailUpdate.current = now;
     }
+
+    // Apply trail positions to DOM elements directly
+    trailRefs.current.forEach((trail, index) => {
+      if (trail && trailPositions.current[index]) {
+        const pos = trailPositions.current[index];
+        trail.style.transform = `translate(-50%, -50%) translate3d(${pos.x}px, ${pos.y}px, 0)`;
+      }
+    });
 
     rafRef.current = requestAnimationFrame(animateCursor);
   };
@@ -105,6 +123,7 @@ const CustomCursor = () => {
   const handleInteraction = (type: 'start' | 'end', x: number, y: number) => {
     if (type === 'start') {
       setIsActive(prev => ({ ...prev, click: true }));
+      // Use the coordinates passed in for exact ripple placement
       showRippleEffect(x, y);
     } else {
       setIsActive(prev => ({ ...prev, click: false }));
@@ -121,23 +140,29 @@ const CustomCursor = () => {
 
     setIsVisible(true);
     document.body.style.cursor = 'none';
-    rafRef.current = requestAnimationFrame(animateCursor);
-
-    const handleMouseMove = throttle((e: MouseEvent) => {
+    
+    const handleMouseMove = (e: MouseEvent) => {
       mousePos.current = getMagnetPosition(e.clientX, e.clientY);
-    }, 16);
+      
+      // If cursor is not yet animated, start it
+      if (rafRef.current === null) {
+        cursorPos.current = { x: e.clientX, y: e.clientY };
+        trailPositions.current = Array.from({ length: CURSOR_CONFIG.TRAIL_COUNT }, () => ({ x: e.clientX, y: e.clientY }));
+        rafRef.current = requestAnimationFrame(animateCursor);
+      }
+    };
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const tagName = target.tagName.toLowerCase();
-      const isInteractive = target.closest('a, button, [role="button"], .interactive');
+      const isInteractive = target.closest('a, button, [role="button"], .interactive, [role="tab"], .cursor-pointer');
       const isTextInput = ['input', 'textarea'].includes(tagName) || target.isContentEditable;
 
       setCursorState(isTextInput ? 'text' : isInteractive ? 'pointer' : 'default');
       setIsActive(prev => ({ ...prev, hover: !!isInteractive }));
     };
 
-    const handleMouseDown = (e: MouseEvent) => handleInteraction('start', cursorPos.current.x, cursorPos.current.y);
+    const handleMouseDown = (e: MouseEvent) => handleInteraction('start', e.clientX, e.clientY);
     const handleMouseUp = () => handleInteraction('end', 0, 0);
 
     const handleTouch = (e: TouchEvent) => {
@@ -180,6 +205,8 @@ const CustomCursor = () => {
     };
   }, []);
 
+  if (!isVisible) return null;
+
   return (
     <>
       <div
@@ -194,15 +221,14 @@ const CustomCursor = () => {
       {Array.from({ length: CURSOR_CONFIG.TRAIL_COUNT }).map((_, index) => (
         <div
           key={index}
+          ref={el => (trailRefs.current[index] = el)}
           className="cursor-trail"
           style={{
             opacity: 1 - (index * 0.08),
-            transform: trailPositions.current[index]
-              ? `translate(-50%, -50%) translate3d(${trailPositions.current[index].x}px, ${trailPositions.current[index].y}px, 0)`
-              : 'translate(-50%, -50%)',
-            transitionDelay: `${index * 8}ms`,
             width: `${18 - index}px`,
-            height: `${18 - index}px`
+            height: `${18 - index}px`,
+            // Set initial position to avoid jump
+            transform: `translate(-50%, -50%) translate3d(${cursorPos.current.x}px, ${cursorPos.current.y}px, 0)`
           }}
         />
       ))}

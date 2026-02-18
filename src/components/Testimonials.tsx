@@ -131,16 +131,16 @@ const Testimonials = () => {
   return (
     <section
       id="testimonials"
-      className="py-16 bg-white dark:bg-black text-gray-800 dark:text-white transition-colors duration-500 overflow-hidden"
+      className="py-24 bg-background relative overflow-hidden"
     >
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <AnimationWrapper direction="up">
-            <h2 className="text-4xl font-bold mb-2">
+            <h2 className="text-4xl font-outfit font-bold text-foreground mb-2">
               Client <span className="gradient-text">Testimonials</span>
             </h2>
             <div className="w-24 h-1 bg-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
+            <p className="mt-4 text-muted-foreground font-inter max-w-2xl mx-auto">
               What clients are saying about my work
             </p>
           </AnimationWrapper>
@@ -155,7 +155,7 @@ const Testimonials = () => {
           >
             {/* Mobile swipe indicator */}
             <div className="md:hidden flex justify-center mb-6">
-              <div className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-900 rounded-full space-x-2 border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center px-4 py-2 bg-accent/5 rounded-full space-x-2 border border-border/40">
                 <svg
                   className="w-5 h-5 text-purple-500 animate-pulse"
                   fill="none"
@@ -169,7 +169,7 @@ const Testimonials = () => {
                     d="M15 19l-7-7 7-7"
                   />
                 </svg>
-                <span className="text-sm text-gray-600 dark:text-gray-300">
+                <span className="text-sm text-muted-foreground font-medium">
                   Swipe to navigate
                 </span>
                 <svg
@@ -191,7 +191,7 @@ const Testimonials = () => {
             {/* Main testimonial card */}
             <div
               ref={slideRef}
-              className={`bg-gray-50 dark:bg-gray-900 rounded-xl p-8 md:p-10 shadow-2xl border border-gray-200 dark:border-gray-800 transition-all duration-500 transform ${getSlideAnimation()}`}
+              className="glass border-border/40 rounded-[2rem] p-8 md:p-12 transition-all duration-500 transform overflow-hidden"
               style={{
                 boxShadow:
                   "0 10px 30px -10px rgba(139, 92, 246, 0.2), 0 4px 6px -2px rgba(139, 92, 246, 0.05)",
@@ -211,7 +211,7 @@ const Testimonials = () => {
                   <path d="M10 8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V10c0-1.1-.9-2-2-2h-6zm16-8c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4v-6.4c0-1.1-.9-1.6-2-1.6h-2c-1.1 0-2-.5-2-1.6V2c0-1.1-.9-2-2-2h-6z" />
                 </svg>
                 <AnimationWrapper direction="up">
-                  <p className="text-lg md:text-xl italic leading-relaxed text-gray-700 dark:text-gray-300">
+                  <p className="text-lg md:text-2xl font-outfit italic leading-relaxed text-foreground/80">
                     {testimonials[currentIndex].text}
                   </p>
                 </AnimationWrapper>
@@ -229,10 +229,10 @@ const Testimonials = () => {
                     {testimonials[currentIndex].author.charAt(0)}
                   </div>
                   <div className="mt-4 text-center">
-                    <h4 className="font-bold text-xl text-gray-900 dark:text-white">
+                    <h4 className="font-outfit font-bold text-2xl text-foreground">
                       {testimonials[currentIndex].author}
                     </h4>
-                    <p className="text-purple-700 dark:text-purple-800 text-sm font-medium">
+                    <p className="text-primary font-outfit font-bold text-xs uppercase tracking-widest mt-1">
                       {testimonials[currentIndex].source}
                     </p>
                   </div>
@@ -248,8 +248,8 @@ const Testimonials = () => {
                   onClick={() => goToTestimonial(index)}
                   className={`w-3 h-3 rounded-full transition-all transform ${
                     currentIndex === index
-                      ? "bg-purple-600 w-8 scale-110"
-                      : "bg-gray-300 dark:bg-gray-800 hover:bg-gray-400 dark:hover:bg-gray-700"
+                      ? "bg-primary w-12 scale-110"
+                      : "bg-accent/10 hover:bg-accent/20"
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -267,7 +267,7 @@ const Testimonials = () => {
                     );
                   }
                 }}
-                className="absolute top-1/2 -left-6 transform -translate-y-1/2 bg-gray-100 dark:bg-gray-900 hover:bg-purple-500 dark:hover:bg-purple-600 hover:text-white rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all shadow-lg border border-gray-200 dark:border-gray-800"
+                className="absolute top-1/2 -left-6 transform -translate-y-1/2 bg-accent/5 hover:bg-primary text-foreground hover:text-primary-foreground rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-lg border border-border/40"
                 aria-label="Previous testimonial"
               >
                 <svg
@@ -293,7 +293,7 @@ const Testimonials = () => {
                     );
                   }
                 }}
-                className="absolute top-1/2 -right-6 transform -translate-y-1/2 bg-gray-100 dark:bg-gray-900 hover:bg-purple-500 dark:hover:bg-purple-600 hover:text-white rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all shadow-lg border border-gray-200 dark:border-gray-800"
+                className="absolute top-1/2 -right-6 transform -translate-y-1/2 bg-accent/5 hover:bg-primary text-foreground hover:text-primary-foreground rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-lg border border-border/40"
                 aria-label="Next testimonial"
               >
                 <svg

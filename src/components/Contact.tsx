@@ -1,19 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { Github, Mail, Send, ArrowRight, Loader2, MapPin, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Github, Mail, Send, ArrowRight, Loader2, MapPin, Sparkles, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { motion, useInView } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { AnimationWrapper } from "./anime";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -24,47 +17,6 @@ export default function Contact() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [formCompleted, setFormCompleted] = useState(0);
-
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "0px 0px -100px 0px" });
-
-  // Animation variants
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
-  };
-
-  const slideInLeft = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } },
-  };
-
-  const slideInRight = {
-    hidden: { opacity: 0, x: 20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } },
-  };
-
-  useEffect(() => {
-    // Calculate form completion percentage
-    const totalFields = 3;
-    let filledFields = 0;
-
-    if (formData.name.trim()) filledFields++;
-    if (formData.email.trim()) filledFields++;
-    if (formData.message.trim()) filledFields++;
-
-    setFormCompleted((filledFields / totalFields) * 100);
-  }, [formData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -87,331 +39,179 @@ export default function Contact() {
       });
 
       if (response.ok) {
-        toast.success("Message sent successfully! I'll get back to you soon.");
+        toast.success("Message received! I'll get back to you shortly.");
         setFormData({ name: "", email: "", message: "" });
       } else {
-        toast.error("Failed to send message. Please try again later.");
+        toast.error("Something went wrong. Please try again.");
       }
     } catch (error) {
-      console.error("Error sending form:", error);
-      toast.error("Something went wrong. Please try again later.");
+      toast.error("Connection error. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const contactMethods = [
+  const contactInfo = [
     {
-      id: "email",
-      icon: Mail,
-      title: "Email",
+      icon: <Mail className="h-5 w-5" />,
+      label: "Email",
       value: "jadhavrushikesh283@gmail.com",
-      link: "mailto:jadhavrushikesh283@gmail.com",
+      link: "mailto:jadhavrushikesh283@gmail.com"
     },
     {
-      id: "github",
-      icon: Github,
-      title: "GitHub",
-      value: "@rushikesh",
-      link: "https://github.com/rishi283g",
+      icon: <Github className="h-5 w-5" />,
+      label: "GitHub",
+      value: "github.com/rishi283g",
+      link: "https://github.com/rishi283g"
     },
     {
-      id: "location",
-      icon: MapPin,
-      title: "Location",
-      value: "Pune, Maharashtra, India",
-      link: null,
-    },
+      icon: <MapPin className="h-5 w-5" />,
+      label: "Location",
+      value: "Maharashtra, India",
+    }
   ];
 
   return (
-    <section
-      id="contact"
-      ref={sectionRef}
-      className="py-20 bg-muted/30 relative overflow-hidden"
-    >
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl opacity-50"></div>
-        <div className="absolute top-40 -right-20 w-80 h-80 bg-accent/5 rounded-full blur-3xl opacity-50"></div>
-      </div>
+    <section id="contact" className="py-24 bg-background relative overflow-hidden">
+      <div className="container relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            {/* Left Column: Context */}
+            <div className="space-y-12">
+              <AnimationWrapper type="fade" direction="up">
+                <h2 className="text-sm font-outfit uppercase tracking-[0.3em] text-primary mb-6 flex items-center gap-2">
+                  <Sparkles className="h-3 w-3" />
+                  Get in touch
+                </h2>
+                <h3 className="text-5xl md:text-6xl font-outfit font-bold text-foreground leading-tight">
+                  Let's craft something <span className="gradient-text">exceptional.</span>
+                </h3>
+                <p className="text-muted-foreground font-inter text-lg leading-relaxed mt-6 max-w-md">
+                  Whether you have a groundbreaking idea or just want to say hi, my inbox is always open. 
+                  Let's make digital magic happen.
+                </p>
+              </AnimationWrapper>
 
-      <motion.div
-        className="container relative"
-        variants={containerVariants}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-      >
-        <div className="text-center mb-16">
-          <motion.h2
-            className="font-poppins text-3xl md:text-4xl font-bold"
-            variants={fadeInUp}
-          >
-            Get In <span className="gradient-text">Touch</span>
-          </motion.h2>
-          <motion.div
-            className="mt-4 mx-auto max-w-xl"
-            variants={fadeInUp}
-          >
-            <p className="text-muted-foreground">
-              Have a question or want to work together? I'd love to hear from you!
-            </p>
-          </motion.div>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <motion.div variants={slideInLeft}>
-            <Card className="border-border/50 h-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 overflow-hidden group">
-              <motion.div
-                className="absolute h-1 left-0 top-0 bg-gradient-to-r from-primary to-accent w-0 group-hover:w-full transition-all duration-700"
-                initial={{ width: "0%" }}
-                whileHover={{ width: "100%" }}
-              />
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Contact Information
-                  <motion.div
-                    className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                  >
-                    <ExternalLink className="h-4 w-4 text-primary" />
-                  </motion.div>
-                </CardTitle>
-                <CardDescription>
-                  Feel free to reach out through any of these channels
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {contactMethods.map((method, index) => (
-                  <motion.div
-                    key={method.id}
-                    variants={fadeInUp}
-                    className="transition-all duration-300"
-                  >
-                    {method.link ? (
-                      <motion.a
-                        href={method.link}
-                        target={method.id === "github" ? "_blank" : undefined}
-                        rel={method.id === "github" ? "noopener noreferrer" : undefined}
-                        className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 hover:bg-primary/5 transition-all duration-300 group/item"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+              <div className="space-y-6">
+                {contactInfo.map((info, idx) => (
+                  <AnimationWrapper key={idx} type="fade" direction="right" delay={0.1 * idx}>
+                    {info.link ? (
+                      <a 
+                        href={info.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-5 p-5 rounded-3xl glass border-border/40 hover:border-primary/20 hover:bg-accent/5 transition-all group cursor-pointer"
                       >
-                        <motion.div
-                          className="h-10 w-10 rounded-full bg-primary/10 group-hover/item:bg-primary/20 flex items-center justify-center transition-all duration-300"
-                          whileHover={{ scale: 1.1 }}
-                        >
-                          <method.icon className="h-5 w-5 text-primary" />
-                        </motion.div>
-                        <div className="flex-grow">
-                          <h3 className="font-medium">{method.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {method.value}
-                          </p>
-                        </div>
-                        <motion.div
-                          initial={{ opacity: 0, x: -5 }}
-                          className="group-hover/item:opacity-100 group-hover/item:translate-x-1"
-                        >
-                          <ArrowRight className="h-4 w-4 text-primary" />
-                        </motion.div>
-                      </motion.a>
-                    ) : (
-                      <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 transition-all duration-300">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <method.icon className="h-5 w-5 text-primary" />
+                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                          {info.icon}
                         </div>
                         <div>
-                          <h3 className="font-medium">{method.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {method.value}
-                          </p>
+                          <p className="text-[10px] font-outfit font-bold uppercase tracking-widest text-muted-foreground/40 mb-1">{info.label}</p>
+                          <p className="text-foreground font-medium">{info.value}</p>
+                        </div>
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-5 p-5 rounded-3xl glass border-border/40">
+                        <div className="w-12 h-12 rounded-2xl bg-accent/5 flex items-center justify-center text-muted-foreground/40">
+                          {info.icon}
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-outfit font-bold uppercase tracking-widest text-muted-foreground/40 mb-1">{info.label}</p>
+                          <p className="text-muted-foreground/60 font-medium">{info.value}</p>
                         </div>
                       </div>
                     )}
-                  </motion.div>
+                  </AnimationWrapper>
                 ))}
-                <motion.div
-                  variants={fadeInUp}
-                  className="p-5 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 mt-6 border border-border/30 transition-all duration-300"
-                >
-                  <p className="text-sm">
-                    Currently open to freelance projects and full-time opportunities.
-                    Let's build something amazing together!
-                  </p>
-                </motion.div>
-              </CardContent>
-            </Card>
-          </motion.div>
+              </div>
+            </div>
 
-          <motion.div variants={slideInRight}>
-            <Card className="border-border/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 overflow-hidden group relative">
-              <motion.div
-                className="absolute h-1 left-0 top-0 bg-gradient-to-r from-primary to-accent"
-                animate={{ width: `${formCompleted}%` }}
-                transition={{ duration: 0.3 }}
-              />
-              <CardHeader>
-                <CardTitle>Send Me a Message</CardTitle>
-                <CardDescription>
-                  I'll get back to you as soon as possible
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form
-                  onSubmit={handleSubmit}
-                  action="https://formspree.io/f/mzzeyqqd"
-                  method="POST"
-                  className="space-y-5"
-                >
-                  <motion.div
-                    variants={fadeInUp}
-                    className="space-y-2 transition-all duration-300"
-                  >
-                    <Label
-                      htmlFor="name"
-                      className={`transition-colors duration-300 ${
-                        focusedField === "name" ? "text-primary" : ""
-                      }`}
-                    >
-                      Name
-                    </Label>
-                    <motion.div
-                      whileFocus={{ scale: 1.02 }}
-                      transition={{ duration: 0.2 }}
-                    >
+            {/* Right Column: Form */}
+            <div className="relative">
+              <AnimationWrapper type="fade" direction="left">
+                <div className="p-10 rounded-[2.5rem] glass border-border/40 relative overflow-hidden backdrop-blur-2xl">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent opacity-20" />
+                  
+                  <h4 className="text-2xl font-outfit font-bold text-foreground mb-8 flex items-center gap-3">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    Send a Message
+                  </h4>
+
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className={`text-xs font-outfit font-bold uppercase tracking-widest transition-colors ${focusedField === 'name' ? 'text-primary' : 'text-muted-foreground/40'}`}>Your Name</Label>
                       <Input
                         id="name"
                         name="name"
+                        required
                         value={formData.name}
                         onChange={handleChange}
-                        onFocus={() => setFocusedField("name")}
+                        onFocus={() => setFocusedField('name')}
                         onBlur={() => setFocusedField(null)}
-                        placeholder="Your name"
-                        required
-                        className={`transition-all duration-300 ${
-                          focusedField === "name"
-                            ? "border-primary/50 shadow-sm shadow-primary/20"
-                            : formData.name
-                            ? "border-border bg-muted/30"
-                            : ""
-                        }`}
+                        placeholder="John Doe"
+                        className="h-14 rounded-2xl bg-accent/5 border-border/40 focus:border-primary/50 focus:ring-primary/20 text-foreground font-inter placeholder:text-muted-foreground/20"
                       />
-                    </motion.div>
-                  </motion.div>
-                  <motion.div
-                    variants={fadeInUp}
-                    className="space-y-2 transition-all duration-300"
-                  >
-                    <Label
-                      htmlFor="email"
-                      className={`transition-colors duration-300 ${
-                        focusedField === "email" ? "text-primary" : ""
-                      }`}
-                    >
-                      Email
-                    </Label>
-                    <motion.div
-                      whileFocus={{ scale: 1.02 }}
-                      transition={{ duration: 0.2 }}
-                    >
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className={`text-xs font-outfit font-bold uppercase tracking-widest transition-colors ${focusedField === 'email' ? 'text-primary' : 'text-muted-foreground/40'}`}>Email Address</Label>
                       <Input
                         id="email"
                         name="email"
                         type="email"
+                        required
                         value={formData.email}
                         onChange={handleChange}
-                        onFocus={() => setFocusedField("email")}
+                        onFocus={() => setFocusedField('email')}
                         onBlur={() => setFocusedField(null)}
-                        placeholder="Your email"
-                        required
-                        className={`transition-all duration-300 ${
-                          focusedField === "email"
-                            ? "border-primary/50 shadow-sm shadow-primary/20"
-                            : formData.email
-                            ? "border-border bg-muted/30"
-                            : ""
-                        }`}
+                        placeholder="john@example.com"
+                        className="h-14 rounded-2xl bg-accent/5 border-border/40 focus:border-primary/50 focus:ring-primary/20 text-foreground font-inter placeholder:text-muted-foreground/20"
                       />
-                    </motion.div>
-                  </motion.div>
-                  <motion.div
-                    variants={fadeInUp}
-                    className="space-y-2 transition-all duration-300"
-                  >
-                    <Label
-                      htmlFor="message"
-                      className={`transition-colors duration-300 ${
-                        focusedField === "message" ? "text-primary" : ""
-                      }`}
-                    >
-                      Message
-                    </Label>
-                    <motion.div
-                      whileFocus={{ scale: 1.02 }}
-                      transition={{ duration: 0.2 }}
-                    >
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="message" className={`text-xs font-outfit font-bold uppercase tracking-widest transition-colors ${focusedField === 'message' ? 'text-primary' : 'text-muted-foreground/40'}`}>Message</Label>
                       <Textarea
                         id="message"
                         name="message"
+                        required
+                        rows={4}
                         value={formData.message}
                         onChange={handleChange}
-                        onFocus={() => setFocusedField("message")}
+                        onFocus={() => setFocusedField('message')}
                         onBlur={() => setFocusedField(null)}
-                        placeholder="Your message"
-                        rows={4}
-                        required
-                        className={`transition-all duration-300 resize-none ${
-                          focusedField === "message"
-                            ? "border-primary/50 shadow-sm shadow-primary/20"
-                            : formData.message
-                            ? "border-border bg-muted/30"
-                            : ""
-                        }`}
+                        placeholder="How can I help you?"
+                        className="rounded-2xl bg-accent/5 border-border/40 focus:border-primary/50 focus:ring-primary/20 text-foreground font-inter placeholder:text-muted-foreground/20 resize-none p-4"
                       />
-                    </motion.div>
-                  </motion.div>
-                  <motion.div variants={fadeInUp}>
+                    </div>
+
                     <Button
                       type="submit"
-                      className="w-full gap-2 relative overflow-hidden group/button"
                       disabled={isSubmitting}
-                      as={motion.button}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      className="w-full h-16 rounded-2xl bg-primary hover:bg-primary/90 text-black font-outfit font-extrabold text-lg gap-2 cursor-pointer shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
                     >
                       {isSubmitting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Sending...
+                        </>
                       ) : (
-                        <motion.div
-                          className="flex items-center gap-2"
-                          initial={{ x: 0 }}
-                          whileHover={{ x: 5 }}
-                        >
-                          <Send className="h-4 w-4" />
+                        <>
                           Send Message
-                        </motion.div>
+                          <Send className="h-5 w-5" />
+                        </>
                       )}
-                      <motion.span
-                        className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover/button:opacity-10"
-                        initial={{ opacity: 0 }}
-                        whileHover={{ opacity: 0.1 }}
-                      />
                     </Button>
-                  </motion.div>
-                </form>
-              </CardContent>
-              <motion.div
-                variants={fadeInUp}
-                className="text-xs text-muted-foreground pt-0 px-4 pb-4"
-              >
-                <p>All information is stored securely and never shared with third parties.</p>
-              </motion.div>
-            </Card>
-          </motion.div>
+                  </form>
+                </div>
+              </AnimationWrapper>
+
+              {/* Decorative Glow */}
+              <div className="absolute -z-10 bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[100px]" />
+            </div>
+          </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

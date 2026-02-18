@@ -1,129 +1,103 @@
-import {
-  Code2,
-  FileCode2,
+import { motion } from "framer-motion";
+import { 
+  Code2, 
+  Layout, 
+  Terminal, 
   Palette,
-  Terminal,
-  Server,
-  GitBranch,
-  Gauge,
+  Blocks,
+  Sparkles
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { AnimationWrapper, StaggerContainer } from "./anime";
-// import ModelViewer from "@/components/ModelViewer";
+import { StaggerContainer, AnimationWrapper } from "./anime";
+
+const skillCategories = [
+  {
+    title: "Frontend Mastery",
+    icon: <Layout className="h-6 w-6" />,
+    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Redux"],
+    className: "md:col-span-2",
+    color: "from-blue-500/20 to-cyan-500/20"
+  },
+  {
+    title: "Core Languages",
+    icon: <Code2 className="h-6 w-6" />,
+    skills: ["JavaScript", "HTML5", "CSS3"],
+    className: "md:col-span-1",
+    color: "from-orange-500/20 to-yellow-500/20"
+  },
+  {
+    title: "Developer Tools",
+    icon: <Terminal className="h-6 w-6" />,
+    skills: ["Git", "VS Code", "Vite", "NPM"],
+    className: "md:col-span-1",
+    color: "from-green-500/20 to-emerald-500/20"
+  },
+  {
+    title: "Styling & UI",
+    icon: <Palette className="h-6 w-6" />,
+    skills: ["Framer Motion", "Shadcn UI", "Lucide"],
+    className: "md:col-span-2",
+    color: "from-purple-500/20 to-pink-500/20"
+  }
+];
 
 export default function Skills() {
-  const skillCategories = [
-    {
-      title: "Frontend",
-      icon: <Code2 className="h-5 w-5 text-primary" />,
-      skills: ["HTML", "CSS", "JavaScript", "React (learning)"],
-    },
-    
-    {
-      title: "Tools",
-      icon: <Terminal className="h-5 w-5 text-primary" />,
-      skills: ["Git", "GitHub", "VS Code", "Chrome DevTools"],
-    },
-    {
-      title: "Design",
-      icon: <Palette className="h-5 w-5 text-primary" />,
-      skills: ["Canva", "Responsive Design", "UI Principles"],
-    },
-    {
-      title: "Computer Science",
-      icon: <FileCode2 className="h-5 w-5 text-primary" />,
-      skills: ["Basic DSA", "Problem Solving", "Computational Thinking"],
-    },
-    {
-      title: "Learning Next",
-      icon: <Server className="h-5 w-5 text-primary" />,
-      skills: ["Node.js", "Express", "MongoDB", "Full Stack Development"],
-    },
-    {
-      title: "Soft Skills",
-      icon: <Gauge className="h-5 w-5 text-primary" />,
-      skills: ["Self-Learning", "Perseverance", "Time Management", "Communication"],
-    },
-  ];
-
   return (
-    <section id="skills" className="py-20">
-      
-      <div className="container">
-        
-        <AnimationWrapper direction="up">
-          <div className="text-center mb-16">
-            <h2 className="font-poppins text-3xl md:text-4xl font-bold">
-             
-              My <span className="gradient-text">Skills</span>
+    <section id="skills" className="py-24 bg-background relative overflow-hidden">
+      <div className="container relative z-10">
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <AnimationWrapper type="fade" direction="up">
+            <h2 className="text-sm font-outfit uppercase tracking-[0.3em] text-primary mb-4 flex items-center justify-center gap-2">
+              <Sparkles className="h-3 w-3" />
+              Abilities
             </h2>
-       
-            <div className="mt-4 mx-auto max-w-xl">
-              
-              <p className="text-muted-foreground">
-                Technologies and tools I've learned and currently using to build digital experiences.
-                
-              </p>
-   
-            </div>
-            
-          </div>
-  
-        </AnimationWrapper>
+            <h3 className="text-4xl md:text-5xl font-outfit font-bold text-foreground mb-6">
+              My <span className="gradient-text">Tech Stack</span>
+            </h3>
+            <p className="text-muted-foreground font-inter max-w-2xl mx-auto">
+              A curated selection of technologies I use to bring digital ideas to life. 
+              Focused on performance, aesthetics, and user experience.
+            </p>
+          </AnimationWrapper>
+        </div>
 
-        <StaggerContainer
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          delayChildren={0.3}
+        <StaggerContainer 
+          staggerChildren={0.1} 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
         >
           {skillCategories.map((category, index) => (
-            <AnimationWrapper key={index} direction="left">
-              <div className="flex flex-col h-full">
-                <Card className="group h-full min-h-[220px] flex flex-col justify-between border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center gap-2">
-                      {category.icon}
-                      <CardTitle className="text-lg">{category.title}</CardTitle>
-                    </div>
-                    <CardDescription>
-                      {category.title === "Learning Next"
-                        ? "Technologies on my learning roadmap"
-                        : `My ${category.title.toLowerCase()} skills and tools`}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <div className="flex flex-wrap gap-2">
-                      {category.skills.map((skill, skillIndex) => (
-                        <span key={skillIndex} className="badge bg-secondary/50">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <div className="h-1 w-full bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-                </Card>
+            <motion.div
+              key={index}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                show: { opacity: 1, y: 0 }
+              }}
+              className={`group relative p-8 rounded-3xl glass border-border/40 overflow-hidden flex flex-col justify-between ${category.className}`}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-accent/5 border border-border/40 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/20 group-hover:border-primary/50 transition-all duration-300">
+                  {category.icon}
+                </div>
+                <h4 className="text-xl font-outfit font-bold text-foreground mb-4">{category.title}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {category.skills.map((skill, sIdx) => (
+                    <span 
+                      key={sIdx}
+                      className="px-3 py-1.5 text-xs font-inter font-medium bg-accent/5 border border-border/40 rounded-full text-muted-foreground group-hover:text-foreground group-hover:border-primary/30 transition-colors"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </AnimationWrapper>
+
+              <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Blocks className="w-24 h-24 rotate-12" />
+              </div>
+            </motion.div>
           ))}
         </StaggerContainer>
-
-        <div className="mt-16 text-center">
-                           {/* <ModelViewer 
-  modelSrc="public/models/react_logo.glb"
-  height="300px"
-  animated={true}
-/> */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
-            <GitBranch className="h-4 w-4 text-primary" />
-            
-            <span className="text-sm">Always learning and growing my skill set</span>
-          </div>
-        </div>
       </div>
     </section>
   );

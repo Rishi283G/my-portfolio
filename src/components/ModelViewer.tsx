@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 
 // Declare the model-viewer custom element for TypeScript
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       'model-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {

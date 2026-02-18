@@ -1,92 +1,53 @@
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight, Download, MousePointer2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionTemplate, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { fadeIn, staggerContainer } from "./anime";
+import ModelViewer from "./ModelViewer";
 
 // Create a motion-enabled Button
 const MotionButton = motion(Button);
 
 export default function Hero() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const springConfig = { damping: 15, stiffness: 150 }; // Lighter spring for faster response
+  const springConfig = { damping: 25, stiffness: 200 };
   const rotateX = useSpring(useMotionValue(0), springConfig);
   const rotateY = useSpring(useMotionValue(0), springConfig);
 
-  // State to control welcome animation visibility
   const [showWelcome, setShowWelcome] = useState(false);
-
-  // Particle state for animation
   const [particles, setParticles] = useState([]);
-
-  // Welcome animation control
-  const welcomeVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-  };
-
-  // Welcome screen animation variants
-  const welcomeScreenVariants = {
-    hidden: { opacity: 1, scale: 1 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0 } },
-    exit: { opacity: 0, scale: 1.2, transition: { duration: 0.7, ease: "easeIn" } },
-  };
-
-  // Welcome text animation variants with 3D effect
-  const welcomeTextVariants = {
-    hidden: { opacity: 0, scale: 0.8, rotateX: 60, y: 100 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      rotateX: 0, 
-      y: 0, 
-      transition: { duration: 1.2, ease: "easeOut" } 
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 1.3, 
-      rotateX: -30, 
-      y: -100, 
-      transition: { duration: 0.7 } 
-    },
-  };
 
   // Progress bar animation
   const progressVariants = {
     hidden: { width: '0%' },
     visible: { 
       width: '100%', 
-      transition: { duration: 10, ease: 'linear' } // Matches 10s welcome animation
+      transition: { duration: 4, ease: 'easeInOut' } 
     },
   };
 
-  // Handle mouse movement for 3D tilt effect
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
     const { clientX, clientY } = e;
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
     const centerX = left + width / 2;
     const centerY = top + height / 2;
-    const x = (clientX - centerX) / (width / 2); // Normalize to -1 to 1
-    const y = (clientY - centerY) / (height / 2); // Normalize to -1 to 1
-    rotateY.set(x * 10); // Reduced to 10deg for lighter feel
-    rotateX.set(-y * 10); // Reduced to 10deg for lighter feel
+    const x = (clientX - centerX) / (width / 2);
+    const y = (clientY - centerY) / (height / 2);
+    rotateY.set(x * 15);
+    rotateX.set(-y * 15);
     mouseX.set(clientX - left);
     mouseY.set(clientY - top);
   };
 
-  // Reset rotation on mouse leave
   const handleMouseLeave = () => {
     rotateX.set(0);
     rotateY.set(0);
-    mouseX.set(0);
-    mouseY.set(0);
   };
 
-  // Image transform template
-  const imageTransform = useMotionTemplate`rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-
-  // Check sessionStorage and control welcome animation
   useEffect(() => {
     const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome');
     if (!hasSeenWelcome) {
@@ -95,312 +56,195 @@ export default function Hero() {
     }
   }, []);
 
-  // Generate particles for animation and handle welcome animation timeout
   useEffect(() => {
     if (!showWelcome) return;
-
-    const newParticles = Array.from({ length: 12 }, () => ({
+    const newParticles = Array.from({ length: 20 }, () => ({
       id: Math.random(),
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      size: Math.random() * 4 + 2,
-      duration: Math.random() * 3 + 2,
-      color: Math.random() > 0.5 ? '#4F46E5' : '#EC4899',
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 2 + 1,
+      delay: Math.random() * 2,
     }));
     setParticles(newParticles);
 
-    // Hide welcome animation after it completes
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-    }, 10000);
+    const timer = setTimeout(() => setShowWelcome(false), 4500);
     return () => clearTimeout(timer);
   }, [showWelcome]);
 
   return (
     <>
-      <style>
-        {`
-          :root {
-            --gradient-primary: linear-gradient(45deg, #4F46E5, #EC4899);
-            --bg-gradient: linear-gradient(135deg, rgba(30, 41, 59, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
-            --welcome-bg: radial-gradient(circle at center, rgba(30, 41, 59, 1) 0%, rgba(0, 0, 0, 1) 80%);
-          }
-        `}
-      </style>
-
-      {/* Enhanced Welcome Animation Overlay */}
-      {showWelcome && (
-        <motion.div
-          className="fixed inset-0 flex items-center justify-center z-50"
-          style={{ background: 'var(--welcome-bg)' }}
-          variants={welcomeScreenVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
-          {/* Progress Bar */}
+      <AnimatePresence>
+        {showWelcome && (
           <motion.div
-            className="absolute bottom-10 w-64 h-2 bg-white/20 rounded-full overflow-hidden"
-            style={{ left: '50%', transform: 'translateX(-50%)' }}
+            className="fixed inset-0 flex flex-col items-center justify-center z-[100] bg-background"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
           >
             <motion.div
-              className="h-full bg-gradient-to-r from-[#4F46E5] to-[#EC4899]"
-              variants={progressVariants}
-              initial="hidden"
-              animate="visible"
-            />
-          </motion.div>
-
-          {/* Particle Animation */}
-          {particles.map((particle) => (
-            <motion.div
-              key={particle.id}
-              className="absolute rounded-full"
-              style={{
-                width: particle.size,
-                height: particle.size,
-                left: particle.x,
-                top: particle.y,
-                background: particle.color,
-                boxShadow: `0 0 8px ${particle.color}80`,
-                zIndex: 10,
-              }}
-              animate={{
-                y: [0, -100, 0],
-                opacity: [0, 1, 0],
-                scale: [1, 1.5, 0.5],
-              }}
-              transition={{
-                duration: particle.duration,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-
-          {/* Glowing Background Effect */}
-          <motion.div
-            className="absolute inset-0 z-5"
-            style={{
-              background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.2) 0%, transparent 70%)',
-            }}
-            animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          />
-
-          {/* Animated Welcome Text */}
-          <motion.div variants={welcomeTextVariants} style={{ zIndex: 20 }}>
-            <TypeAnimation
-              sequence={[
-                'Welcome', 1500,
-                'स्वागत है', 1500,
-                'Bienvenido', 1500,
-                'ようこそ', 1500,
-                'Willkommen', 1500,
-                'ようこそ', 1500,
-              ]}
-              wrapper="h1"
-              cursor={false}
-              repeat={0}
-              className="text-5xl md:text-7xl font-poppins font-bold"
-              style={{
-                background: 'var(--gradient-primary)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
-                transform: 'perspective(1000px)',
-              }}
-            />
-          </motion.div>
-
-          {/* Sparkle Effects */}
-          <motion.div
-            className="absolute w-2 h-2 bg-white rounded-full z-10"
-            animate={{
-              x: [0, 100, -100, 0],
-              y: [0, -100, 100, 0],
-              opacity: [0, 1, 1, 0],
-              scale: [0, 1.5, 1.5, 0],
-            }}
-            transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-            style={{ top: '40%', left: '60%' }}
-          />
-          <motion.div
-            className="absolute w-3 h-3 bg-white rounded-full z-10"
-            animate={{
-              x: [-50, 50, -50, 50],
-              y: [50, -50, 50, -50],
-              opacity: [0, 1, 1, 0],
-              scale: [0, 1.2, 1.2, 0],
-            }}
-            transition={{ duration: 2.5, repeat: Infinity, delay: 1 }}
-            style={{ top: '60%', left: '40%' }}
-          />
-        </motion.div>
-      )}
-
-      {/* Main Hero Section */}
-      <section
-        className="min-h-screen flex items-center pt-20 pb-10"
-        style={{ background: 'var(--bg-gradient)' }}
-        role="banner"
-      >
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
-            {/* LEFT TEXT SECTION */}
-            <motion.div
-              className="order-2 lg:order-1 space-y-6"
-              initial="hidden"
-              animate="visible"
-              variants={welcomeVariants}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="relative text-center"
             >
-              <motion.h1
-                className="font-poppins text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
-                variants={welcomeVariants}
-                style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)' }}
+              <h2 className="text-sm font-outfit uppercase tracking-[0.3em] text-primary mb-4">Initializing</h2>
+              <h1 className="text-5xl md:text-7xl font-outfit font-bold gradient-text">Portfolio</h1>
+              
+              <div className="mt-8 w-64 h-1 bg-white/5 rounded-full overflow-hidden mx-auto relative">
+                <motion.div
+                  className="h-full bg-primary"
+                  variants={progressVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+              </div>
+            </motion.div>
+
+            {particles.map((p) => (
+              <motion.div
+                key={p.id}
+                className="absolute w-1 h-1 bg-primary rounded-full"
+                style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0, 1, 0], scale: [0, 1, 0] }}
+                transition={{ duration: p.duration, repeat: Infinity, delay: p.delay }}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <section
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20"
+      >
+        {/* Background Gradients */}
+        <div className="absolute inset-0 z-0 opacity-50 dark:opacity-100">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]" />
+        </div>
+
+        {/* Dynamic Background Assets: 3D Model & Profile Aura */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+          <div className="relative w-full h-full max-w-7xl mx-auto">
+            {/* Profile Picture with animated glow */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.15, scale: 1 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full overflow-hidden blur-sm dark:blur-none opacity-20 dark:opacity-30"
+            >
+              <img 
+                src="https://res.cloudinary.com/dts9o4fhd/image/upload/v1739854486/WhatsApp_Image_2025-02-18_at_10.21.32_AM_m867ia.jpg" 
+                alt="Rushikesh Jadhav"
+                className="w-full h-full object-cover grayscale dark:grayscale-0"
+              />
+            </motion.div>
+
+            {/* 3D Model Layer */}
+            <div className="absolute inset-0 z-10 opacity-40 dark:opacity-60">
+              <ModelViewer 
+                modelSrc="https://models.readyplayer.me/64b584e037149a850ca09503.glb"
+                height="100vh"
+                width="100vw"
+                containerWidth="100vw"
+                margin="0"
+                backgroundColor="transparent"
+                initialOrbit="0deg 85deg 4m"
+                maxFieldOfView="40deg"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="container relative z-20 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={staggerContainer(0.2, 0.5)}
+              className="space-y-8"
+            >
+              <motion.div
+                variants={fadeIn("up", 0.1)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-border/40 text-xs font-medium text-primary glow-primary mb-4"
               >
-                Hi, I'm <span className="gradient-text">Rushikesh Jadhav</span>
+                <Sparkles className="h-3 w-3" />
+                <span>Available for new projects</span>
+              </motion.div>
+
+              <motion.h1
+                variants={fadeIn("up", 0.2)}
+                className="font-outfit text-6xl md:text-8xl lg:text-9xl font-black tracking-tight leading-[0.9] text-foreground"
+              >
+                I BUILD <br />
+                <span className="gradient-text">DIGITAL</span> MAGIC.
               </motion.h1>
 
               <motion.div
-                className="mt-4 text-xl md:text-2xl font-poppins font-semibold h-12"
-                variants={welcomeVariants}
+                variants={fadeIn("up", 0.3)}
+                className="text-xl md:text-2xl font-outfit font-medium text-muted-foreground"
               >
                 <TypeAnimation
                   sequence={[
-                    'Frontend Developer.',
-                    2000,
-                    'React.js Enthusiast',
-                    2000,
-                    'Self-Taught Software Engineer',
-                    2000,
-                    'AI-Powered Developer in Progress',
-                    2000,
-                    'Learner. Builder. Dreamer.',
-                    2000,
-                    'Full Stack Explorer',
-                    2000,
-                    'Your Next Favorite Developer 🚀',
-                    2000,
+                    'Frontend Developer.', 2000,
+                    'React & Next.js Architect.', 2000,
+                    'Self-Taught Engineer.', 2000,
+                    'Creative Builder.', 2000,
                   ]}
-                  wrapper="span"
-                  cursor={true}
                   repeat={Infinity}
-                  className="gradient-text"
-                  style={{
-                    fontSize: '1em',
-                    background: 'var(--gradient-primary)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-                  }}
                 />
               </motion.div>
 
               <motion.p
-                className="mt-4 text-lg text-muted-foreground max-w-lg"
-                variants={welcomeVariants}
-                transition={{ delay: 0.4 }}
-                style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)' }}
+                variants={fadeIn("up", 0.4)}
+                className="text-lg text-muted-foreground max-w-2xl mx-auto font-inter leading-relaxed"
               >
-                A self-taught aspiring software engineer from Radi, India.
-                Currently building with React, JavaScript, and a whole lot of
-                determination.
+                Based in India, I specialize in crafting high-end digital experiences 
+                where code meets creativity. Turning complex problems into simple, 
+                beautiful, and intuitive designs.
               </motion.p>
 
               <motion.div
-                className="mt-8 flex flex-wrap gap-4"
-                variants={welcomeVariants}
-                transition={{ delay: 0.6 }}
+                variants={fadeIn("up", 0.5)}
+                className="flex flex-wrap items-center justify-center gap-6 pt-6"
               >
-                <a href="#projects">
+                <a href="#projects" className="z-30">
                   <MotionButton
-                    className="gap-2"
-                    aria-label="View my projects"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    size="lg"
+                    className="h-14 px-8 rounded-full text-lg font-outfit font-semibold shadow-2xl shadow-primary/20 cursor-pointer"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    View My Work
-                    <ArrowRight className="h-4 w-4" />
+                    Explore My Work
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </MotionButton>
                 </a>
-                <a href="https://my-resume-puce-five.vercel.app/" download>
-                  <MotionButton
-                    variant="outline"
-                    className="gap-2"
-                    aria-label="Download my resume"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Download Resume
-                    <Download className="h-4 w-4" />
-                  </MotionButton>
+                
+                <a href="#contact" className="group flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors p-2 cursor-pointer z-30">
+                  <div className="w-10 h-10 rounded-full border border-border/40 flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                    <MousePointer2 className="h-4 w-4" />
+                  </div>
+                  <span className="font-outfit font-medium">Get in touch</span>
                 </a>
-              </motion.div>
-            </motion.div>
-
-            {/* RIGHT IMAGE SECTION */}
-            <motion.div
-              className="order-1 lg:order-2 flex flex-col items-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              {/* PROFILE IMAGE */}
-              <motion.div
-                className="relative group"
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                style={{ perspective: 1000, transformStyle: "preserve-3d" }}
-              >
-                <motion.div
-                  className="absolute -inset-2 rounded-full bg-gradient-to-br from-primary/60 to-accent/30 blur-xl opacity-70 group-hover:opacity-90 transition-opacity duration-300"
-                  initial={{ scale: 0.8 }}
-                  animate={{
-                    scale: 1,
-                    rotate: [0, 5, -5, 0],
-                    y: [0, -15, 0],
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    repeatType: "mirror",
-                    ease: "easeInOut",
-                  }}
-                />
-                <motion.div
-                  className="relative aspect-square w-64 md:w-80 bg-muted rounded-full overflow-hidden border-4 border-background shadow-2xl"
-                  style={{
-                    transform: imageTransform,
-                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-                  }}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <motion.div
-                    className="w-full h-full relative"
-                    style={{
-                      x: rotateY, // Parallax effect
-                      y: rotateX,
-                      transition: 'transform 0.05s ease-out', // Faster transition
-                    }}
-                  >
-                    <img
-                      src="/lovable-uploads/9f3affde-eade-442b-b40d-f96efe92f2c0.png"
-                      alt="Rushikesh Jadhav - Portfolio"
-                      className="w-full h-full object-cover scale-[1.12]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 mix-blend-multiply" />
-                  </motion.div>
-                </motion.div>
               </motion.div>
             </motion.div>
           </div>
         </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
+        >
+          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/30 font-medium">Scroll</span>
+          <div className="w-[1px] h-12 bg-gradient-to-b from-primary to-transparent" />
+        </motion.div>
       </section>
     </>
   );

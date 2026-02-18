@@ -1,191 +1,118 @@
-import { useState } from "react";
-import { Briefcase, GraduationCap, MapPin, ChevronRight, Star, Target, Award, LucideIcon } from "lucide-react";
-import { AnimationWrapper, StaggerContainer } from "./anime";
-
-interface YearPlanItem {
-  year: string;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}
-
-interface InfoItem {
-  icon: LucideIcon;
-  title: string;
-  value: string;
-}
+import { User, Mail, MapPin, Calendar, BookOpen, Heart } from "lucide-react";
+import { AnimationWrapper } from "./anime";
 
 export default function About() {
-  const [activeYear, setActiveYear] = useState<number | null>(null);
-
-  const yearPlanItems: YearPlanItem[] = [
-    {
-      year: "Year 1",
-      title: "Foundation & First Projects",
-      description: "Master HTML, CSS, JavaScript fundamentals. Build several small projects. Complete React basics. Create a personal portfolio.",
-      icon: Star
-    },
-    {
-      year: "Year 2",
-      title: "Advanced Skills & Experience",
-      description: "Deep dive into React ecosystem. Learn backend technologies. Contribute to open source. Build full-stack applications.",
-      icon: Target
-    },
-    {
-      year: "Year 3",
-      title: "Professional Growth",
-      description: "Secure developer position. Continue learning advanced topics. Mentor others from similar backgrounds.",
-      icon: Award
-    }
+  const infoItems = [
+    { label: "Name", value: "Rushikesh Jadhav", icon: <User className="h-4 w-4" /> },
+    { label: "Email", value: "jadhavrushikesh283@gmail.com", icon: <Mail className="h-4 w-4" /> },
+    { label: "Location", value: "Maharashtra, India", icon: <MapPin className="h-4 w-4" /> },
+    { label: "Birthday", value: "Oct 18, 2004", icon: <Calendar className="h-4 w-4" /> },
   ];
 
-  const infoItems: InfoItem[] = [
-    {
-      icon: MapPin,
-      title: "Location",
-      value: "Pune, Maharashtra, India"
-    },
-    {
-      icon: GraduationCap,
-      title: "Education",
-      value: "Yashwantrao Chavan College"
-    },
-    {
-      icon: Briefcase,
-      title: "Experience",
-      value: "Self-taught Developer"
-    }
+  const yearPlanItems = [
+    { year: "2024", goal: "Mastering React, Next.js & TypeScript" },
+    { year: "2025", goal: "Exploring Backend & Cloud Technologies" },
+    { year: "2026", goal: "Building Scalable Full-Stack Applications" },
   ];
 
   return (
-    <section id="about" className="py-20 bg-muted/30 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <AnimationWrapper direction="right" duration={1.5}>
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-30"></div>
-        </AnimationWrapper>
-        <AnimationWrapper direction="left" duration={1.5}>
-          <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-accent/10 rounded-full blur-3xl opacity-30"></div>
-        </AnimationWrapper>
-      </div>
-
-      <div className="container relative">
-        <AnimationWrapper direction="up">
-          <div className="text-center mb-16">
-            <h2 className="font-poppins text-3xl md:text-4xl font-bold">
-              About <span className="gradient-text">Me</span>
-            </h2>
-            <div className="mt-4 mx-auto max-w-xl">
-              <p className="text-muted-foreground">
-                From rural beginnings to coding dreams — my journey of self-teaching and determination.
-              </p>
-            </div>
-          </div>
-        </AnimationWrapper>
-
-        <div className="grid md:grid-cols-2 gap-10 items-center">
-          <AnimationWrapper direction="left" delay={0.2}>
-            <h3 className="font-poppins text-2xl font-semibold mb-4 relative inline-block">
-              My Story
-              <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/80 to-transparent"></span>
-            </h3>
-
-            <p className="mb-4 leading-relaxed text-balance">
-              Born and raised in Radi village, I grew up with limited resources but unlimited curiosity.
-              Despite not having access to top-tier education, I've always been driven to learn and grow.
-            </p>
-            <p className="mb-4 leading-relaxed text-balance">
-              After completing my studies at Z.P.H.S. Radi and Yashwantrao Chavan College,
-              I made the bold decision to pursue my passion for technology through self-education.
-            </p>
-            <p className="leading-relaxed text-balance">
-              Currently based in Pune, I'm on a mission to become a skilled full-stack developer.
-              Every day is a step forward in my journey of turning challenges into opportunities.
-            </p>
-
-            <AnimationWrapper direction="up" delay={0.4}>
-              <blockquote className="quote my-8 p-4 border-l-4 border-primary bg-primary/5 italic rounded-r-lg shadow-sm">
-                <p className="text-sm md:text-base">"The only way to do great work is to love what you do. If you haven't found it yet, 
-                keep looking. Don't settle."</p>
-                <footer className="text-right text-sm font-medium text-primary/80 mt-2">- Steve Jobs</footer>
-              </blockquote>
+    <section id="about" className="py-24 bg-background relative overflow-hidden">
+      <div className="container relative z-10">
+        <div className="grid lg:grid-cols-2 gap-16 items-start">
+          {/* Left Column: Vision & Bio */}
+          <div className="space-y-12">
+            <AnimationWrapper type="fade" direction="up">
+              <h2 className="text-sm font-outfit uppercase tracking-[0.3em] text-primary mb-6">Introduction</h2>
+              <h3 className="text-5xl md:text-6xl font-outfit font-bold text-foreground leading-tight">
+                Crafting interfaces that <span className="gradient-text">matter.</span>
+              </h3>
             </AnimationWrapper>
 
-            <StaggerContainer staggerChildren={0.1} delayChildren={0.5}>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
-                {infoItems.map((item, index) => (
-                  <AnimationWrapper key={index} direction="up">
-                    <div className="flex items-start gap-3 group p-3 rounded-lg hover:bg-primary/5 transition-all duration-300">
-                      <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-all duration-300">
-                        <item.icon className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium group-hover:text-primary transition-colors duration-300">{item.title}</h4>
-                        <p className="text-sm text-muted-foreground">{item.value}</p>
-                      </div>
+            <AnimationWrapper type="fade" direction="up" delay={0.2}>
+              <div className="space-y-6 text-lg text-muted-foreground font-inter leading-relaxed max-w-xl">
+                <p>
+                  As an aspiring software engineer, I've dedicated my journey to understanding 
+                  not just the <span className="text-foreground">how</span> of technology, but the <span className="text-foreground">why</span>. 
+                  My focus lies at the intersection of performance and playful interaction.
+                </p>
+                <div className="quote">
+                  "I don't just write code; I design systems that communicate with users 
+                  on a human level."
+                </div>
+                <p>
+                  I'm currently pushing the boundaries of what's possible in the browser, 
+                  one commit at a time.
+                </p>
+              </div>
+            </AnimationWrapper>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-10">
+              {infoItems.map((item, idx) => (
+                <AnimationWrapper key={idx} type="fade" direction="up" delay={0.1 * idx}>
+                  <div className="flex items-center gap-4 group p-4 rounded-2xl bg-accent/5 border border-border/40 hover:border-primary/20 transition-all duration-300">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                      {item.icon}
                     </div>
-                  </AnimationWrapper>
-                ))}
-              </div>
-            </StaggerContainer>
-          </AnimationWrapper>
-
-          <AnimationWrapper direction="right" delay={0.3}>
-            <div className="relative rounded-lg p-6 bg-gradient-to-br from-primary/5 to-accent/5 border border-border hover:border-primary/30 transition-all duration-500 shadow-lg shadow-transparent hover:shadow-primary/5">
-              <h3 className="font-poppins text-2xl font-semibold mb-8 relative inline-block">
-                3-Year Plan
-                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/80 to-transparent"></span>
-              </h3>
-
-              <div className="space-y-8 relative">
-                <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/80 via-primary/20 to-transparent"></div>
-
-                <StaggerContainer staggerChildren={0.2} delayChildren={0.6}>
-                  {yearPlanItems.map((item, index) => (
-                    <AnimationWrapper key={index} direction="right">
-                      <div
-                        className="relative flex items-start"
-                        onMouseEnter={() => setActiveYear(index)}
-                        onMouseLeave={() => setActiveYear(null)}
-                      >
-                        <div
-                          className={`timeline-dot absolute left-5 w-4 h-4 rounded-full bg-background transform -translate-x-1/2 transition-all duration-300 ${
-                            activeYear === index ? "scale-125 border-2 border-primary" : "border border-primary/50"
-                          }`}
-                        ></div>
-
-                        <div className="pl-10 flex items-start gap-4">
-                          <div
-                            className={`h-12 w-12 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300 ${
-                              activeYear === index
-                                ? "bg-primary text-background shadow-md shadow-primary/20"
-                                : "bg-primary/10 text-primary"
-                            }`}
-                          >
-                            <item.icon className="h-6 w-6" />
-                          </div>
-
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium">
-                                <span className="text-primary mr-2">{item.year}:</span>
-                                {item.title}
-                              </h4>
-                              <ChevronRight
-                                size={16}
-                                className={`transition-all duration-300 ${activeYear === index ? "opacity-100" : "opacity-0"}`}
-                              />
-                            </div>
-                            <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </AnimationWrapper>
-                  ))}
-                </StaggerContainer>
-              </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold">{item.label}</p>
+                      <p className="text-sm text-foreground/80 font-medium">{item.value}</p>
+                    </div>
+                  </div>
+                </AnimationWrapper>
+              ))}
             </div>
-          </AnimationWrapper>
+          </div>
+
+          {/* Right Column: Timeline & Personal */}
+          <div className="lg:pl-16 space-y-16">
+            <AnimationWrapper type="fade" direction="left">
+              <div className="p-10 rounded-[2.5rem] glass border-border/40 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-colors" />
+                
+                <h4 className="flex items-center gap-3 text-xl font-outfit font-bold text-foreground mb-8">
+                  <BookOpen className="h-5 w-5 text-primary" />
+                  Growth Roadmap
+                </h4>
+                
+                <div className="space-y-10 relative">
+                  <div className="absolute left-[7px] top-2 bottom-2 w-px bg-gradient-to-b from-primary via-primary/50 to-transparent" />
+                  
+                  {yearPlanItems.map((item, idx) => (
+                    <div key={idx} className="relative pl-10">
+                      <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-primary shadow-[0_0_15px_rgba(139,92,246,0.3)] border-2 border-background" />
+                      <span className="text-xs font-outfit font-bold text-primary uppercase tracking-widest">{item.year}</span>
+                      <p className="text-muted-foreground font-medium mt-1">{item.goal}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AnimationWrapper>
+
+            <AnimationWrapper type="fade" direction="up" delay={0.4}>
+              <div className="flex flex-col gap-8">
+                <div className="flex items-center gap-4">
+                  <div className="h-px flex-1 bg-border/40" />
+                  <Heart className="h-4 w-4 text-primary animate-pulse" />
+                  <div className="h-px flex-1 bg-border/40" />
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-4 rounded-3xl bg-accent/5 border border-border/40">
+                    <p className="text-3xl font-outfit font-bold text-foreground">20+</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 mt-1">Projects</p>
+                  </div>
+                  <div className="text-center p-4 rounded-3xl bg-accent/5 border border-border/40">
+                    <p className="text-3xl font-outfit font-bold text-foreground">2k+</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 mt-1">Commits</p>
+                  </div>
+                  <div className="text-center p-4 rounded-3xl bg-accent/5 border border-border/40">
+                    <p className="text-3xl font-outfit font-bold text-foreground">100%</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 mt-1">Dedicated</p>
+                  </div>
+                </div>
+              </div>
+            </AnimationWrapper>
+          </div>
         </div>
       </div>
     </section>
